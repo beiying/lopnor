@@ -1,10 +1,11 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.3.31'
+    ext.kotlin_version = '1.3.40'
     repositories {
         google()
-        jcenter()
+        maven{ url'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven{ url'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         
     }
     dependencies {
@@ -18,11 +19,54 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
+        maven{ url'http://maven.aliyun.com/nexus/content/groups/public/' }
+        maven{ url'http://maven.aliyun.com/nexus/content/repositories/jcenter'}
         
     }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+
+//Android Studio统一管理依赖版本号引用配置
+ext {
+    //组件化开发配置开关
+    isModule = false
+
+    //修改compileSdkVersion并不会影响我们的我们生成的app在手机先的行为。最理想的情况就是把compileSdkVersion设置到最高。
+    globalCompileSdkVersion = 29
+    //targetSdkVersion的设置主要是当系统版本高于设置的target的时候。然后targetSdkVersion最好和compileSdkVersion一样。
+    globalTargetSdkVersion = 29
+    //构建工具的版本号是多少，规则是可以用高的构建工具来构建低版本Sdk的工程。使用build-tools目录中的最大版本号即可
+    globalBuildToolsVersion = "29.0.3"
+    //这个就是程序运行的最低的要求的Sdk版本号，在低于这个版本号的手机设备上无法安装。
+    globalMinSdkVersion = 16
+
+    supportLibraryVersion = "28.0.0"
+
+    /*=================================常用的引用============================================*/
+    //supportLibVersion 的头数字是和targetSdkVersion 版本一样的。
+    androidDependencies = [
+            appcompat_v7 : "com.android.support:appcompat-v7:${supportLibraryVersion}",
+            design        : "com.android.support:design:${supportLibraryVersion}",
+            support_v4    : "com.android.support:support-v4:${supportLibraryVersion}",
+            recyclerView : "com.android.support:recyclerview-v7:${supportLibraryVersion}",
+    ]
+
+    /*=================================module中公共用到的引用============================================*/
+    globalDependencies = [
+            //constraintLayout引用
+            constraintLayout : "com.android.support.constraint:constraint-layout:1.1.3",
+
+            retrofit: "com.squareup.retrofit2:retrofit:2.9.0",
+            okhttp3: "com.squareup.okhttp3:okhttp:3.14.7",
+            okhttp4: "com.squareup.okhttp3:okhttp:4.7.2",
+            okio: "com.squareup.okio:okio:1.17.5",
+            release_chunker: "com.github.chuckerteam.chucker:library:3.2.0",
+            debug_chunker: "com.github.chuckerteam.chucker:library-no-op:3.2.0",
+            //glide的引用
+            glide : "com.github.bumptech.glide:glide:4.7.1",
+    ]
 }

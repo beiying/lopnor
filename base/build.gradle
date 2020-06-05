@@ -1,17 +1,24 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.library'
+
 apply plugin: 'kotlin-android'
+
 apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion rootProject.ext.globalCompileSdkVersion
+    buildToolsVersion rootProject.ext.globalBuildToolsVersion
+
+
     defaultConfig {
-        applicationId "com.beiying.lopnor"
         minSdkVersion rootProject.ext.globalMinSdkVersion
         targetSdkVersion rootProject.ext.globalTargetSdkVersion
         versionCode 1
         versionName "1.0"
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -27,16 +34,17 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(":base")
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
     implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.2.0'
-    implementation 'com.google.android.material:material:1.1.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+
+    api globalDependencies.constraintLayout
+    api globalDependencies.okhttp3
 }
