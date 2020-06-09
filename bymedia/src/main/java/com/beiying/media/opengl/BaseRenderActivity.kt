@@ -5,6 +5,9 @@ import android.os.Bundle
 import android.util.SparseArray
 import androidx.appcompat.widget.Toolbar
 import com.beiying.lopnor.base.BaseToolbarActivity
+import com.beiying.media.opengl.render.BaseShapeRender
+import com.beiying.media.opengl.shape.BaseShape
+import com.beiying.media.opengl.shape.Point
 
 abstract class BaseRenderActivity : BaseToolbarActivity() {
     lateinit var mBaseShapeView: BaseShapeView

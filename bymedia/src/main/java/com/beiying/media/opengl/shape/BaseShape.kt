@@ -1,7 +1,8 @@
-package com.beiying.media.opengl
+package com.beiying.media.opengl.shape
 
 import android.content.Context
 import android.opengl.GLES20.*
+import com.beiying.media.opengl.VertexArray
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10
 

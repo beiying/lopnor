@@ -3,8 +3,9 @@ package com.beiying.media.opengl
 import android.content.Context
 import android.opengl.GLSurfaceView
 import android.view.SurfaceHolder
+import com.beiying.media.opengl.render.BaseRender
 
-class BaseShapeView(context: Context, private val baseRender: BaseRender) : GLSurfaceView(context) {
+class BaseShapeView(context: Context,  val baseRender: BaseRender) : GLSurfaceView(context) {
     init {
         setEGLContextClientVersion(2)
         setRenderer(baseRender)

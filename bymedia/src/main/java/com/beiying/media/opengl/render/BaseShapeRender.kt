@@ -1,6 +1,8 @@
-package com.beiying.media.opengl
+package com.beiying.media.opengl.render
 
 import android.content.Context
+import com.beiying.media.opengl.shape.BaseShape
+import com.beiying.media.opengl.shape.Point
 import java.lang.Exception
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL10

@@ -1,6 +1,7 @@
 package com.beiying.media.opengl
 
 import com.beiying.media.R
+import com.beiying.media.opengl.shape.Point
 
 class GraphActivity : BaseRenderActivity() {
     override fun initShapeClazz() {

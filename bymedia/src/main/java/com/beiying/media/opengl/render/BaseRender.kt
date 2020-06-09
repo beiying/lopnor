@@ -1,4 +1,4 @@
-package com.beiying.media.opengl
+package com.beiying.media.opengl.render
 
 import android.content.Context
 import android.opengl.GLSurfaceView
