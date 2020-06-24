@@ -38,7 +38,7 @@ abstract class BaseRenderActivity : BaseToolbarActivity() {
     }
 
     override fun updateToolbar() {
-        setToolbarTitle(intent.getStringExtra(ACTIVITY_TITLE))
+//        setToolbarTitle(intent.getStringExtra(ACTIVITY_TITLE))
         setMenuId()
         setToolbarMenuItemClickListener(Toolbar.OnMenuItemClickListener { item ->
             updateShape(item.itemId)

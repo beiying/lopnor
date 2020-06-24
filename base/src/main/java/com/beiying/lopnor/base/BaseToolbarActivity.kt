@@ -17,6 +17,7 @@ abstract class BaseToolbarActivity : AppCompatActivity() {
         setContentView(R.layout.activity_base_toolbar)
         mToolbar = findViewById(R.id.toolbar)
         mContainer = findViewById(R.id.baseContainer)
+        updateToolbar()
     }
 
     private fun setContent(contentId: Int) {
