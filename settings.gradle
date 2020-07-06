@@ -1,1 +1,2 @@
+include ':ffplayer'
 include ':app', ':base', ':bymedia'
