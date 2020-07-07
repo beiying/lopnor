@@ -33,6 +33,12 @@ abstract class BaseRenderActivity : BaseToolbarActivity() {
         setContentView(mBaseShapeView)
     }
 
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putSerializable(RENDER_SHAPE, clazz)
+        super.onSaveInstanceState(outState)
+    }
+
     open fun setInitShape() {
 
     }
@@ -48,6 +54,16 @@ abstract class BaseRenderActivity : BaseToolbarActivity() {
     private fun updateShape(itemId: Int) {
         clazz = shapeClazzArray.get(itemId)
         recreate()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        mBaseShapeView.onResume()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBaseShapeView.onPause()
     }
 
     abstract fun initShapeClazz()
