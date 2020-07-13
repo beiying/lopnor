@@ -3,4 +3,11 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+
+    <color name="loading_placeholder_view_color">#ddd</color>
+    <color name="loading_title_text">#666</color>
+    <color name="loading_loading_text">#666</color>
+    <color name="loading_error_text">#666</color>
+    <color name="loading_empty_text">#666</color>
+    <color name="loading_reload_btn_text">#2196F3</color>
 </resources>
