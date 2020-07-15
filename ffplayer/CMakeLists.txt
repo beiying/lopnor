@@ -70,6 +70,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 add_library( avplayer
              SHARED
              src/main/cpp/avplayer.c
+             src/main/cpp/media_info.c
             )
 add_library( # Specifies the name of the library.
              algorithm

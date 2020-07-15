@@ -14,7 +14,7 @@ int printMediaInfo(char* mediaFile[])
     av_register_all();
     ret = avformat_open_input(&fmt_ctx, mediaFile, NULL, NULL);
     if (ret < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Can't open file: %s\n", av_err2Str(rest));
+//        av_log(NULL, AV_LOG_ERROR, "Can't open file: %s\n", av_err2Str(rest));
         return -1;
     }
 
@@ -45,13 +45,13 @@ int getAudioData(char* mediaFile[], char* saveFile[])
     int ret;
     int audio_index;
     AVFormatContext *fmt_ctx = NULL;
-    AVPacket pkt = NULL;
+    AVPacket pkt;
 
     av_log_set_level(AV_LOG_INFO);
     av_register_all();
     ret = avformat_open_input(&fmt_ctx, mediaFile, NULL, NULL);
     if (ret < 0) {
-        av_log(NULL, AV_LOG_ERROR, "Can't open file: %s\n", av_err2Str(rest));
+//        av_log(NULL, AV_LOG_ERROR, "Can't open file: %s\n", av_err2Str(rest));
         return -1;
     }
 
@@ -74,15 +74,15 @@ int getAudioData(char* mediaFile[], char* saveFile[])
 
     av_init_packet(&pkt);
     int len;
-    while(av_read_fram(fmt_ctx, &pkt) >= 0){
-        if (pkt.stream_index == audio_index) {
-            len = fwrite(pkt.data, 1, pkt.size, save_fd);
-            if (len != pkt.size) {
-                av_log(NULL, AV_LOG_WARNING, "Warning, length of data is not equal size of packet!!\n " );
-            }
-        }
-        av_packet_unref(&pkt);
-    }
+//    while(av_read_fram(fmt_ctx, &pkt) >= 0){
+//        if (pkt.stream_index == audio_index) {
+//            len = fwrite(pkt.data, 1, pkt.size, save_fd);
+//            if (len != pkt.size) {
+//                av_log(NULL, AV_LOG_WARNING, "Warning, length of data is not equal size of packet!!\n " );
+//            }
+//        }
+//        av_packet_unref(&pkt);
+//    }
 
     avformat_close_input(&fmt_ctx);
     if (save_fd) {
@@ -91,7 +91,9 @@ int getAudioData(char* mediaFile[], char* saveFile[])
     return ret;
 }
 
-int getVideoData(char* )
+int getVideoData(char* argv[]) {
+
+}
 
 int main(int argc, char* argv[])
 {
