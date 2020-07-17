@@ -1,3 +1,4 @@
+include ':apm-plugin'
 include ':apm'
 include ':ffplayer'
 include ':app', ':base', ':bymedia'

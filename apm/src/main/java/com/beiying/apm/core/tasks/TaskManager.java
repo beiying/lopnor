@@ -143,6 +143,9 @@ public class TaskManager {
         }
         if (taskMap.get(ApmTask.TASK_ACTIVITY).isCanWork()) {
             // 云控为TaskConfig.ACTIVITY_TYPE_NONE，则本地开关优先
+            // 先判断是Activity任务是否可以work，如果可以，就从配置中获取Activity的收集方式，如果云控策略是TaskConfig.ACTIVITY_TYPE_NONE，
+            // 那么就以本地的开关优先：如果本地配置了ApmTask.FLAG_COLLECT_ACTIVITY_INSTRUMENTATION，就以instrumentation方式收集，否则，以aop方式收集Activity数据。
+
             int type = ArgusApmConfigManager.getInstance().getArgusApmConfigData().controlActivity;
             if (type == TaskConfig.ACTIVITY_TYPE_NONE) {
                 if (Manager.getInstance().getConfig().isEnabled(ApmTask.FLAG_COLLECT_ACTIVITY_INSTRUMENTATION)) {

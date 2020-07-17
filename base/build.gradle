@@ -47,4 +47,7 @@ dependencies {
 
     api globalDependencies.constraintLayout
     api globalDependencies.okhttp3
+    api globalDependencies.okio
+    api globalDependencies.aspectjrt
+    api globalDependencies.aspectjtools
 }

@@ -35,6 +35,12 @@ public class InstrumentationHooker {
         return isHookSucceed;
     }
 
+    /**
+     * 通过反射的方式获取当前ActivityThread的mInstrumentation属性的实例，返回给currentInstrumentation，
+     * 并且用currentInstrumentation初始化一个ApmInstrumentation的实例ins，最后用ins的替换到当前ActivityThread中mInstrumentation的值，实现hook。
+     * Instrumentation方式是一种在运行期进行hook的方式。
+     * Activity的另一种采集方式是AOP，在编译过程织入代码进行hook。
+     * */
     private static void hookInstrumentation() throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, IllegalAccessException, NoSuchFieldException {
         Class<?> c = Class.forName("android.app.ActivityThread");
         Method currentActivityThread = c.getDeclaredMethod("currentActivityThread");
