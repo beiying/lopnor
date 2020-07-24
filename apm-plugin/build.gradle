@@ -18,6 +18,11 @@ dependencies {
     compileOnly 'com.android.tools.build:gradle:3.4.1'
 }
 
+jar {
+    from {
+        zipTree(new File(project.projectDir.absolutePath + "/libs/aspectjtools.jar"))
+    }
+}
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
