@@ -53,7 +53,9 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 
     implementation project(':base')
-    implementation project(':ffplayer')
+    if(rootProject.ext.isFFPlayerModule) {
+        implementation project(':ffplayer')
+    }
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     testImplementation 'junit:junit:4.12'

@@ -8,7 +8,15 @@
 #include <SLES/OpenSLES.h>
 #include <SLES/OpenSLES_Android.h>
 #include <__locale>
+#include <unistd.h>
 
+// 在C++环境下使用C函数的时候，常常会出现编译器无法找到obj模块中的C函数定义，
+// 从而导致链接失败的情况，应该如何解决这种情况呢？
+//
+// 答案与分析：
+// C++语言在编译的时候为了解决函数的多态问题，会将函数名和参数联合起来生成一个中间的函数名称，
+// 而C语言则不会，因此会造成链接时找不到对应函数的情况，此时C函数就需要用extern “C”进行链接指定，
+// 这告诉编译器，请保持我的名称，不要给我生成用于链接的中间函数名。
 extern "C" {
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
@@ -59,9 +67,9 @@ long long GetNowMs() {
     return t;
 }
 
-jint setUpClassLoader(JNIEnv* env) {
-
-}
+//jint setUpClassLoader(JNIEnv* env) {
+//
+//}
 
 jclass findClass(JNIEnv* env, const char* name) {
     if (env == NULL) return NULL;
@@ -348,11 +356,15 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
         return;
     }
     AVFormatContext* formatContext = avformat_alloc_context();
+//    AVDictionary *opts = NULL;
+//    av_dict_set(&opts, "timeout", "3000000", 0);
+    //打开要解封装的视频文件
     if (avformat_open_input(&formatContext, videoPath, NULL, NULL) != 0) {
         LOGE("解复用，打开视频失败");
         return;
     }
 
+    //获取流信息
     if (avformat_find_stream_info(formatContext, NULL) < 0) {
         LOGE("获取流信息失败");
         return ;
@@ -371,7 +383,7 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
         return;
     }
 
-    LOGE("获取解码器");
+    LOGE("查找并获取解码器");
     AVCodecParameters* codecParameters = formatContext->streams[video_stream_index]->codecpar;
     AVCodec* codec = avcodec_find_decoder(codecParameters->codec_id);
     if (codec == NULL) {
@@ -379,17 +391,20 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
         return;
     }
 
+    //根据获取到的解码器获取解码器上下文
     AVCodecContext* avCodecContext = avcodec_alloc_context3(codec);
     if (avCodecContext == NULL) {
         LOGE("创建avCodecContext失败");
         return;
     }
 
+    // 解码器参数复制到解码器上下文中
     if (avcodec_parameters_to_context(avCodecContext, codecParameters) < 0) {
         LOGE("avcodec_parameters_to_context失败");
         return;
     }
 
+    // 打开解码器
     if(avcodec_open2(avCodecContext, codec, NULL)) {
         LOGE("打开解码器失败");
         return ;
@@ -398,21 +413,82 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
 
     enum AVPixelFormat  dstFormat = AV_PIX_FMT_RGBA;
 
+
+    //解码前的数据封装在AVPacket中，从视频流中读取出AVPacket需要经过三个步骤：
+    // 1、av_packet_alloc
+    // 2、av_read_frame
+    // 3、avcodec_send_packet
     AVPacket* packet = av_packet_alloc();
     if (packet == NULL) {
         return;
     }
 
+    //解码后的YUV数据封装在AVFrame中,
     AVFrame* frame = av_frame_alloc();
     AVFrame* renderFrame = av_frame_alloc();
     if (frame == NULL || renderFrame == NULL) {
         return;
     }
+    SwsContext* swsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->pix_fmt,
+                                        avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, SWS_BILINEAR, 0, 0, 0);
 
-    int size = av_image_get_buffer_size(dstFormat, avCodecContext->width, avCodecContext->height, avCodecContext->block_align);
 
+    ANativeWindow *nativeWindow = ANativeWindow_fromSurface(env, surface_);
+    ANativeWindow_setBuffersGeometry(nativeWindow, avCodecContext->width, avCodecContext->height, WINDOW_FORMAT_RGBA_8888);
+    ANativeWindow_Buffer windowBuffer;
+    int ret = 0;
+    // 从视频流中读取数据包
+    while(av_read_frame(formatContext, packet) >= 0) {
+        avcodec_send_packet(avCodecContext, packet);
+        ret = avcodec_receive_frame(avCodecContext, frame);
+        if (ret == AVERROR(EAGAIN)) {
+            continue;
+        } else if(ret < 0) {
+            break;
+        }
 
+        // 将一帧的YUV数据转化为RGBA数据，RGBA数据用二维数组存放，RGBA各自对应一个一维数组
+        uint8_t *dst_data[4];
+        //RGBA每个通道的内存对齐的步长，即一行的对齐内存的宽度，此值大小等于图像宽度
+        int dst_linesize[0];
+        //填充一帧RGBA数据，对于1920 * 1080的视频，RGBA的每个通道各自对应一个1920 * 1080长度的uint8_t类型的数值，每个通道的步长是1080
+        av_image_alloc(dst_data,dst_linesize, avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, 1);
+        //开始绘制
+        //将AVFrame中的YUV数据转换为RGBA格式的数据
+        sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height,
+                dst_data, dst_linesize);
+        //将RGBA数据渲染到SurfaceView上，底层绘制都是通过缓冲区绘制的，缓冲区是一个字节数组，对应大小是屏幕高度乘以宽度，绘制的时候是一行一行的复制RGBA数据到缓冲区的
+        //绘制时，为防止多线程冲突，对缓冲区要加锁
+        ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
+
+        //一行一行的绘制
+        uint8_t *firstWindow = static_cast<uint8_t *>(windowBuffer.bits);
+        uint8_t *src_data = dst_data[0];
+        int destStride = windowBuffer.stride * 4;
+        int src_linesize = dst_linesize[0];
+        for(int i = 0; i < windowBuffer.height;i++) {
+            memcpy(firstWindow + i * destStride, src_data + i * src_linesize, destStride);//通过内存拷贝
+        }
+
+        //绘制完后要解锁
+        ANativeWindow_unlockAndPost(nativeWindow);
+        usleep(1000* 16);
+        av_frame_free(&frame);
+    }
+
+    ANativeWindow_release(nativeWindow);
+    avcodec_close(avCodecContext);
+    avformat_free_context(formatContext);
     env->ReleaseStringUTFChars(videoPath_, videoPath);
+
+
+    //开始解码视频数据
+
+
+//    int size = av_image_get_buffer_size(dstFormat, avCodecContext->width, avCodecContext->height, avCodecContext->block_align);
+//
+//
+//    env->ReleaseStringUTFChars(videoPath_, videoPath);
 
 };
 
@@ -478,7 +554,7 @@ JNIEXPORT void JNICALL testPlayAudio(JNIEnv *env, jobject context, jstring audio
     }
 
     //设置回调函数，播放队列空时调用
-    (*pcmQueue)->RegisterCallback(pcmQueue, PcmCall, 0);
+//    (*pcmQueue)->RegisterCallback(pcmQueue, PcmCall, 0);
     (*iplayer)->SetPlayState(iplayer, SL_PLAYSTATE_PLAYING);
     //启动队列回调
     (*pcmQueue)->Enqueue(pcmQueue, "", 1);
@@ -502,8 +578,8 @@ static JNINativeMethod jni_Methods_table[] = {
 //        {"avFormatInfo", "(V;)Ljava/lang/String;", (void *) avFormatInfo},
 //        {"avCodecInfo", "(V;)Ljava/lang/String;", (void *) avCodecInfo},
 //        {"avFilterInfo", "(V;)Ljava/lang/String;", (void *) avFilterInfo},
-//        {"playVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) playVideo},
-        {"testPlayVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) testPlayVideo}
+        {"playVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) playVideo},
+//        {"testPlayVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) testPlayVideo}
 };
 
 int register_ndk_onload(JNIEnv *env) {

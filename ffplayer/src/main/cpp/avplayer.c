@@ -25,25 +25,25 @@
 #define JNIREG_CLASS "com/beiying/avplayer/BYAvPlayerView"
 
 
-JNIEXPORT jstring JNICALL urlProtocolInfo(JNIEnv *env) {
-}
-
-
-JNIEXPORT jstring JNICALL avFormatInfo(JNIEnv *env) {
-
-}
-
-JNIEXPORT jstring JNICALL avCodecInfo(JNIEnv *env) {
-
-}
-
-JNIEXPORT jstring JNICALL avFilterInfo(JNIEnv *env) {
-
-}
-
-void JNICALL playVideo(JNIEnv *env, jstring videoPath, jobject surface) {
-
-}
+//JNIEXPORT jstring JNICALL urlProtocolInfo(JNIEnv *env) {
+//}
+//
+//
+//JNIEXPORT jstring JNICALL avFormatInfo(JNIEnv *env) {
+//
+//}
+//
+//JNIEXPORT jstring JNICALL avCodecInfo(JNIEnv *env) {
+//
+//}
+//
+//JNIEXPORT jstring JNICALL avFilterInfo(JNIEnv *env) {
+//
+//}
+//
+//void JNICALL playVideo(JNIEnv *env, jstring videoPath, jobject surface) {
+//
+//}
 
 static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *gMethods, int numMethods) {
     jclass clazz;
@@ -58,11 +58,11 @@ static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMe
 }
 
 static JNINativeMethod jni_Methods_table[] = {
-        {"urlProtocolInfo", "(V;)Ljava/lang/String;", (void *) urlProtocolInfo},
-        {"avFormatInfo", "(V;)Ljava/lang/String;", (void *) avFormatInfo},
-        {"avCodecInfo", "(V;)Ljava/lang/String;", (void *) avCodecInfo},
-        {"avFilterInfo", "(V;)Ljava/lang/String;", (void *) avFilterInfo},
-        {"playVideo", "(Ljava/lang/String;Ljava/lang/Object;)V;", (void *) playVideo}
+//        {"urlProtocolInfo", "(V;)Ljava/lang/String;", (void *) urlProtocolInfo},
+//        {"avFormatInfo", "(V;)Ljava/lang/String;", (void *) avFormatInfo},
+//        {"avCodecInfo", "(V;)Ljava/lang/String;", (void *) avCodecInfo},
+//        {"avFilterInfo", "(V;)Ljava/lang/String;", (void *) avFilterInfo},
+//        {"playVideo", "(Ljava/lang/String;Ljava/lang/Object;)V;", (void *) playVideo}
 };
 
 int register_ndk_onload(JNIEnv *env) {

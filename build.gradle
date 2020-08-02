@@ -35,6 +35,7 @@ task clean(type: Delete) {
 ext {
     //组件化开发配置开关
     isModule = false
+    isFFPlayerModule = false
 
     //修改compileSdkVersion并不会影响我们的我们生成的app在手机先的行为。最理想的情况就是把compileSdkVersion设置到最高。
     globalCompileSdkVersion = 29
