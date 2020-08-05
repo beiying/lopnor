@@ -11,7 +11,9 @@ class FFPlayer : SurfaceHolder.Callback{
             System.loadLibrary("avplayer")
         }
     }
+
     external fun playVideo(videoPath: String, surface: Surface)
+    external fun sound(audioPath: String, outputPath: String)
 
     private lateinit var surfaceHolder: SurfaceHolder
 

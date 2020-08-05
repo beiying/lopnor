@@ -49,7 +49,7 @@ extern "C" {
 //        private:
 //        bool needDetach;
 //};
-
+#define MAX_AUDIO_FRME_SIZE 48000 * 4
 static jobject classLoader;
 
 
@@ -66,6 +66,7 @@ long long GetNowMs() {
     long long t = sec * 1000 + tv.tv_usec/1000;
     return t;
 }
+
 
 //jint setUpClassLoader(JNIEnv* env) {
 //
@@ -492,6 +493,92 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
 
 };
 
+JNIEXPORT void JNICALL sound(JNIEnv *env, jobject context, jstring audioPath_, jstring outputPath_) {
+    const char *input = env->GetStringUTFChars(audioPath_, 0);
+    const char *output = env->GetStringUTFChars(outputPath_, 0);
+
+    avformat_network_init();
+
+    AVFormatContext *formatContext = avformat_alloc_context();
+    if (avformat_open_input(&formatContext, input, NULL, NULL) != 0) {
+        LOGE("无法打开音频数据");
+        return;
+    }
+
+    if(avformat_find_stream_info(formatContext, NULL) < 0) {
+        LOGE("无法获取输入文件信息");
+        return;
+    }
+
+    int audio_stream_idx = -1;
+    for (int i = 0;i < formatContext->nb_streams; i++) {
+        if (formatContext->streams[i]->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audio_stream_idx = i;
+            break;
+        }
+    }
+    //获取解码器参数信息
+    AVCodecParameters *codecpar = formatContext->streams[audio_stream_idx]->codecpar;
+    //获取解码器
+    AVCodec *avCodec = avcodec_find_decoder(codecpar->codec_id);
+    //根据解码器获取解码器上下文
+    AVCodecContext *codecContext = avcodec_alloc_context3(avCodec);
+    //根据解码器参数设置解码器上下文
+    avcodec_parameters_to_context(codecContext, codecpar);
+
+
+    AVPacket *avPacket = av_packet_alloc();
+    //音频转换器上下文
+    SwrContext *swrContext = swr_alloc();
+
+    //输入的音频参数
+    AVSampleFormat  in_sample = codecContext->sample_fmt;//输入的采样格式位数
+    int in_sample_rate = codecContext->sample_rate;//输入的采样频率
+    uint64_t in_ch_layout = codecContext->channel_layout;//输入的声道布局
+    //输出的音频参数
+    AVSampleFormat  out_sample = AV_SAMPLE_FMT_S16;
+    int out_sample_rate = 44100;
+    uint64_t  out_ch_layout = AV_CH_LAYOUT_STEREO;
+    //设置音频转换器上下文的采样参数
+    swr_alloc_set_opts(swrContext, out_ch_layout, out_sample, out_sample_rate, in_ch_layout, in_sample, in_sample_rate, 0, NULL);
+    //初始化音频转换器上下文的其他参数
+    swr_init(swrContext);
+    uint8_t *out_buffer = (uint8_t *)(av_malloc(2 * 44100));//设置输出缓冲区大小等于声道数*采样频率
+    FILE *fp_pcm = fopen(output, "wb");
+
+    int ret = -1;
+    int count= 0;
+    while(av_read_frame(formatContext, avPacket) >= 0) {//从音频流中读取每一帧的压缩数据
+        avcodec_send_packet(codecContext, avPacket);//将读取到一帧压缩数据压入到解码器的解码队列中
+        AVFrame *frame = av_frame_alloc();
+        ret = avcodec_receive_frame(codecContext, frame);//将解码器解码队列中的压缩数据转换位原始的未压缩数据，实现解码
+        if (ret == AVERROR(EAGAIN)) {
+            continue;
+        } else if(ret < 0) {
+            LOGE("完成解码");
+            break;
+        }
+        if (avPacket->stream_index != audio_stream_idx) {
+            continue;
+        }
+        LOGE("正在解码%d" ,count++);
+        //将解码后的数据转换到缓冲区，以备输出
+        swr_convert(swrContext, &out_buffer, 2*44100,
+                    (const uint8_t **)(frame->data), frame->nb_samples);
+        //由于每一帧的数据大小不一定相同，所以读到缓冲区的数据大小也不同，需要获取每一帧数据在缓冲区的实际大小（与声道数、采样频率、采样位数有关），实现数据对齐
+        int out_buffer_size = av_samples_get_buffer_size(NULL, av_get_channel_layout_nb_channels(out_ch_layout), frame->nb_samples, out_sample, 0);
+        fwrite(out_buffer, 1, out_buffer_size, fp_pcm);
+    }
+
+    fclose(fp_pcm);
+    av_free(out_buffer);
+    swr_free(&swrContext);
+    avcodec_close(codecContext);
+    avformat_close_input(&formatContext);
+
+
+}
+
 JNIEXPORT void JNICALL testPlayAudio(JNIEnv *env, jobject context, jstring audioPath_) {
     SLEngineItf engine = createSL();
     if (engine) {
@@ -579,6 +666,7 @@ static JNINativeMethod jni_Methods_table[] = {
 //        {"avCodecInfo", "(V;)Ljava/lang/String;", (void *) avCodecInfo},
 //        {"avFilterInfo", "(V;)Ljava/lang/String;", (void *) avFilterInfo},
         {"playVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) playVideo},
+        {"sound", "(Ljava/lang/String;Ljava/lang/String;)V", (void *) sound}
 //        {"testPlayVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) testPlayVideo}
 };
 
