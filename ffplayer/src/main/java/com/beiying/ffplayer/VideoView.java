@@ -7,7 +7,7 @@ import android.view.SurfaceView;
 
 public class VideoView extends SurfaceView {
     static {
-        System.loadLibrary("avplayer");
+//        System.loadLibrary("avplayer");
     }
 
     Surface mSurface;
@@ -25,18 +25,18 @@ public class VideoView extends SurfaceView {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                playVideo(videoPath, mSurface);
+//                playVideo(videoPath, mSurface);
             }
         }).start();
     }
 
-    public static native String urlProtocolInfo();
-
-    public static native String avFormatInfo();
-
-    public static native String avCodecInfo();
-
-    public static native String avFilterInfo();
-
-    public static native void playVideo(String videoPath, Surface surface);
+//    public static native String urlProtocolInfo();
+//
+//    public static native String avFormatInfo();
+//
+//    public static native String avCodecInfo();
+//
+//    public static native String avFilterInfo();
+//
+//    public static native void playVideo(String videoPath, Surface surface);
 }

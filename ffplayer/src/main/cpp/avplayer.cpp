@@ -145,7 +145,7 @@ static JavaVM* javaVM;
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
 
 // 指定要注册的类，对应完整的java类名
-#define JNIREG_CLASS "com/beiying/video/MainActivity"
+#define JNIREG_CLASS "com/beiying/ffplayer/FFPlayer$Companion"
 
 
 JNIEXPORT jstring JNICALL urlProtocolInfo(JNIEnv *env,jobject context) {
