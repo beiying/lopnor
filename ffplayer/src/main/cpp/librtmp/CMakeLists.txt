@@ -1,4 +1,18 @@
 cmake_minimum_required(VERSION 3.4.1)
+##针对宏定义判断，传入参数NO_CRYPTO，禁用加密算法
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -DNO_CRYPTO")
+add_library(
+        rtmp
+        STATIC
+        amf.c
+        hashswf.c
+        log.c
+        parseurl.c
+        rtmp.c
+)
+
+
+
 # 添加在native层log库
 find_library( # Sets the name of the path variable.
         log-lib
@@ -9,9 +23,6 @@ find_library( # Sets the name of the path variable.
 set(distribution_DIR ${CMAKE_SOURCE_DIR}/libs)
 ##设置依赖库的头文件夹
 include_directories(libs/includes)
-
-##引入rtmpdump
-add_subdirectory(src/main/cpp/librtmp)
 
 # FFmpeg编译出了7个库,这里添加----avutil
 add_library(avutil
@@ -97,7 +108,6 @@ target_link_libraries( # Specifies the target library.
         OpenSLES
         jnigraphics
         android
-        rtmp
         # 这里需要注意下,下面这些ffmpeg的so库编译是有先后顺序的
         # 下面的顺序是没问题的,如果想验证编译顺序,可以自己变换顺序试试.
         avutil swresample swscale avcodec avformat avfilter avdevice
