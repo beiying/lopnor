@@ -21,7 +21,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun open(view: View) {
-        val file: File = File(Environment.getExternalStorageDirectory(), "ffmpeg_test.mp4")
+        val file: File = File(Environment.getExternalStorageDirectory(), "1/ffmpeg_test.mp4")
         Log.e("liuyu", file.absolutePath)
         player.play(file.absolutePath)
     }

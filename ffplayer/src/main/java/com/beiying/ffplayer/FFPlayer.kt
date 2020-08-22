@@ -15,7 +15,7 @@ class FFPlayer : SurfaceHolder.Callback{
     external fun playVideo(videoPath: String, surface: Surface)
     external fun sound(audioPath: String, outputPath: String)
 
-    private var surfaceHolder: SurfaceHolder? = null
+    private lateinit var surfaceHolder: SurfaceHolder
 
     fun setSurfaceView(surfaceView: SurfaceView) {
         this.surfaceHolder?.removeCallback(this)
@@ -37,6 +37,6 @@ class FFPlayer : SurfaceHolder.Callback{
 
 
     fun play(videoPath: String) {
-        playVideo(videoPath, surfaceHolder?.surface)
+        playVideo(videoPath, surfaceHolder.surface)
     }
 }
