@@ -11,11 +11,12 @@ class FFPlayer : SurfaceHolder.Callback{
             System.loadLibrary("avplayer")
         }
     }
-
-    external fun playVideo(videoPath: String, surface: Surface)
     external fun sound(audioPath: String, outputPath: String)
+    external fun playVideo(videoPath: String, surface: Any?)
 
-    private lateinit var surfaceHolder: SurfaceHolder
+
+
+    private var surfaceHolder: SurfaceHolder? = null
 
     fun setSurfaceView(surfaceView: SurfaceView) {
         this.surfaceHolder?.removeCallback(this)
@@ -37,6 +38,6 @@ class FFPlayer : SurfaceHolder.Callback{
 
 
     fun play(videoPath: String) {
-        playVideo(videoPath, surfaceHolder.surface)
+        playVideo(videoPath, surfaceHolder?.surface)
     }
 }

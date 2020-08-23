@@ -5,8 +5,8 @@ import android.view.MotionEvent;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 
-import com.argusapm.android.core.Manager;
-import com.argusapm.android.debug.view.component.CircleView;
+
+import com.beiying.apm.core.Manager;
 
 import java.lang.reflect.Field;
 

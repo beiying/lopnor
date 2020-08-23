@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 
-import com.argusapm.android.network.IRuleRequest;
 import com.beiying.apm.Env;
 import com.beiying.apm.api.Client;
 import com.beiying.apm.cloudconfig.Constant;

@@ -6,13 +6,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.text.TextUtils;
 
-import com.argusapm.android.network.IRuleRequest;
 import com.beiying.apm.ApmDebugEnable;
 import com.beiying.apm.Env;
 import com.beiying.apm.api.ApmTask;
 import com.beiying.apm.cloudconfig.data.ArgusApmConfigData;
 import com.beiying.apm.core.Manager;
 import com.beiying.apm.network.CloudRule;
+import com.beiying.apm.network.IRuleRequest;
 import com.beiying.apm.utils.AsyncThreadTask;
 import com.beiying.apm.utils.ExtraInfoHelper;
 import com.beiying.apm.utils.FileUtils;

@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-import com.argusapm.android.network.IUpload;
 import com.beiying.apm.Env;
 import com.beiying.apm.api.Client;
 import com.beiying.apm.cloudconfig.ArgusApmConfigManager;

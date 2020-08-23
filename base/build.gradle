@@ -50,4 +50,7 @@ dependencies {
     api globalDependencies.okio
 //    api globalDependencies.aspectjrt
     api globalDependencies.aspectjtools
+    api globalDependencies.rxpermissions
+    api globalDependencies.rxjava2
+    api globalDependencies.rxjava3
 }

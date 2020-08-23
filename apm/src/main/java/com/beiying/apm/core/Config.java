@@ -2,10 +2,10 @@ package com.beiying.apm.core;
 
 import android.content.Context;
 
-import com.argusapm.android.network.IRuleRequest;
-import com.argusapm.android.network.IUpload;
 import com.beiying.apm.api.ApmTask;
 import com.beiying.apm.api.IExtraDataCallback;
+import com.beiying.apm.network.IRuleRequest;
+import com.beiying.apm.network.IUpload;
 import com.beiying.apm.utils.LogX;
 import com.beiying.apm.utils.ProcessUtils;
 

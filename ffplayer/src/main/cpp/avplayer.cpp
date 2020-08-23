@@ -144,9 +144,6 @@ static JavaVM* javaVM;
 // 获取数组的大小
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
 
-// 指定要注册的类，对应完整的java类名
-#define JNIREG_CLASS "com/beiying/ffplayer/FFPlayer$Companion"
-
 
 JNIEXPORT jstring JNICALL urlProtocolInfo(JNIEnv *env,jobject context) {
 }
@@ -351,17 +348,28 @@ JNIEXPORT void JNICALL testPlayVideo(JNIEnv *env, jobject context, jstring video
 
 JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath_, jobject surface_) {
     const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+    LOGE("%s", videoPath);
     if (videoPath == NULL) {
         LOGE("视频路径为空");
         av_log_set_level(AV_LOG_INFO);
         return;
     }
+    //初始化解封装
+//    av_register_all();
+//
+////    //初始化编解码器
+//    avcodec_register_all();
+////
+////    //初始化网络
+    avformat_network_init();
+
     AVFormatContext* formatContext = avformat_alloc_context();
-//    AVDictionary *opts = NULL;
-//    av_dict_set(&opts, "timeout", "3000000", 0);
+    AVDictionary *opts = NULL;
+    av_dict_set(&opts, "timeout", "3000000", 0);
     //打开要解封装的视频文件
-    if (avformat_open_input(&formatContext, videoPath, NULL, NULL) != 0) {
-        LOGE("解复用，打开视频失败");
+    int ret = avformat_open_input(&formatContext, videoPath, NULL, &opts);
+    if (ret != 0) {
+        LOGE("解复用，打开视频失败%s", av_err2str(ret));
         return;
     }
 
@@ -424,72 +432,82 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
         return;
     }
 
-    //解码后的YUV数据封装在AVFrame中,
-    AVFrame* frame = av_frame_alloc();
-    AVFrame* renderFrame = av_frame_alloc();
-    if (frame == NULL || renderFrame == NULL) {
-        return;
-    }
-    SwsContext* swsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->pix_fmt,
-                                        avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, SWS_BILINEAR, 0, 0, 0);
+
+    SwsContext* swsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->pix_fmt,//转换前的格式和宽高
+                                        avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, //转换后的格式和宽高
+                                        SWS_BILINEAR, //转换方式：重视速度、重视质量、质量锐度等
+                                        0, 0, 0);
 
 
     ANativeWindow *nativeWindow = ANativeWindow_fromSurface(env, surface_);
     ANativeWindow_setBuffersGeometry(nativeWindow, avCodecContext->width, avCodecContext->height, WINDOW_FORMAT_RGBA_8888);
     ANativeWindow_Buffer windowBuffer;
-    int ret = 0;
+    LOGE("开始从视频流中读取数据包");
     // 从视频流中读取数据包
     while(av_read_frame(formatContext, packet) >= 0) {
+        //将要解码的数据AVPacket发送到FFmpeg的解码队列中，如果解码队列满了会发送失败，需要执行avcodec_receive_frame
         avcodec_send_packet(avCodecContext, packet);
+        //解码后的YUV数据封装在AVFrame中,
+        AVFrame* frame = av_frame_alloc();
+        //从解码成功的解码队列中取出一帧，如果没有可以解码的数据AVPacket，该方法就会报错，需要调用avcodec_send_packet发送要解码的数据
         ret = avcodec_receive_frame(avCodecContext, frame);
+        LOGE("解码一帧数据");
         if (ret == AVERROR(EAGAIN)) {
             continue;
         } else if(ret < 0) {
             break;
         }
 
-        // 将一帧的YUV数据转化为RGBA数据，RGBA数据用二维数组存放，RGBA各自对应一个一维数组
-        uint8_t *dst_data[4];
+        /** 开始绘制，解码出来的是YUV数据，需要转换成RGBA数据，通过YUV和RGBA的换算公式对每一帧数据转换会比较麻烦，FFmpeg提供了转换上下文SwsContext，
+         *  可以用来将YUV格式转换为RGBA格式，其中的swscale方法提供了视频原始数据（YUV420，YUV422，YUV444，RGB24...）之间的转换，分辨率变换等操作。
+         *      1）将一帧的YUV数据转化为RGBA数据，RGBA数据需要有个容器用于加载存储，RGBA数据用二维数组存放，RGBA各自对应一个一维数组
+         **/
+
+        //
+        uint8_t *dst_data[0];//指向R、G、B、A四个一维数组的指针，即包含4个指针的数组
         //RGBA每个通道的内存对齐的步长，即一行的对齐内存的宽度，此值大小等于图像宽度
         int dst_linesize[0];
-        //填充一帧RGBA数据，对于1920 * 1080的视频，RGBA的每个通道各自对应一个1920 * 1080长度的uint8_t类型的数值，每个通道的步长是1080
-        av_image_alloc(dst_data,dst_linesize, avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, 1);
-        //开始绘制
-        //将AVFrame中的YUV数据转换为RGBA格式的数据
-        sws_scale(swsContext, frame->data, frame->linesize, 0, frame->height,
-                dst_data, dst_linesize);
-        //将RGBA数据渲染到SurfaceView上，底层绘制都是通过缓冲区绘制的，缓冲区是一个字节数组，对应大小是屏幕高度乘以宽度，绘制的时候是一行一行的复制RGBA数据到缓冲区的
-        //绘制时，为防止多线程冲突，对缓冲区要加锁
-        ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
 
-        //一行一行的绘制
-        uint8_t *firstWindow = static_cast<uint8_t *>(windowBuffer.bits);
-        uint8_t *src_data = dst_data[0];
-        int destStride = windowBuffer.stride * 4;
-        int src_linesize = dst_linesize[0];
-        for(int i = 0; i < windowBuffer.height;i++) {
-            memcpy(firstWindow + i * destStride, src_data + i * src_linesize, destStride);//通过内存拷贝
+        //申请一帧RGBA图像所占的内存，并填充一帧空的RGBA数据，对于1920 * 1080的视频，RGBA的每个通道各自对应一个1920 * 1080长度的uint8_t类型的数值，每个通道的步长是1080
+        av_image_alloc(dst_data,dst_linesize, avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, 1);
+
+        LOGE("linesize0 %d", dst_data[0]);
+        if (packet->stream_index == video_stream_index) {
+//开始绘制
+            //将AVFrame中的YUV数据转换为RGBA格式的数据
+            sws_scale(swsContext,frame->data, //,输入图像YUV的每个颜色通道的数据指针
+                      frame->linesize,//YUV数据每个通道的内存对齐的步长
+                      0,
+                      frame->height,
+                      dst_data, // 转换后的RGBA数据
+                      dst_linesize);
+            //将RGBA数据渲染到SurfaceView上，底层绘制都是通过缓冲区绘制的，缓冲区是一个字节数组，对应大小是屏幕高度乘以宽度，绘制的时候是一行一行的复制RGBA数据到缓冲区的
+            //绘制时，为防止多线程冲突，对缓冲区要加锁
+            ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
+            LOGE("----linesize0 %d", dst_linesize[0]);
+            //一行一行的绘制
+            uint8_t *firstWindow = static_cast<uint8_t *>(windowBuffer.bits);
+            uint8_t *src_data = dst_data[0];
+            int destStride = windowBuffer.stride * 4;
+            int src_linesize = dst_linesize[0];
+            for(int i = 0; i < windowBuffer.height;i++) {
+                //通过内存拷贝的方式进行渲染
+                memcpy(firstWindow + i * destStride, src_data + i * src_linesize, destStride);//通过内存拷贝
+            }
+            LOGE("----linesize0 %d", dst_linesize[0]);
+            //绘制完后要解锁
+            ANativeWindow_unlockAndPost(nativeWindow);
+            usleep(1000* 16);
+            av_frame_free(&frame);
         }
 
-        //绘制完后要解锁
-        ANativeWindow_unlockAndPost(nativeWindow);
-        usleep(1000* 16);
-        av_frame_free(&frame);
+
     }
 
     ANativeWindow_release(nativeWindow);
     avcodec_close(avCodecContext);
     avformat_free_context(formatContext);
     env->ReleaseStringUTFChars(videoPath_, videoPath);
-
-
-    //开始解码视频数据
-
-
-//    int size = av_image_get_buffer_size(dstFormat, avCodecContext->width, avCodecContext->height, avCodecContext->block_align);
-//
-//
-//    env->ReleaseStringUTFChars(videoPath_, videoPath);
 
 };
 
@@ -659,6 +677,9 @@ static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMe
     }
     return JNI_TRUE;
 };
+
+// 指定要注册的类，对应完整的java类名
+#define JNIREG_CLASS "com/beiying/ffplayer/FFPlayer"
 
 static JNINativeMethod jni_Methods_table[] = {
 //        {"urlProtocolInfo", "(V;)Ljava/lang/String;", (void *) urlProtocolInfo},

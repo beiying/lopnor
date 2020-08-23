@@ -2,11 +2,11 @@ package com.beiying.apm.api;
 
 import android.content.Context;
 
-import com.argusapm.android.network.DebugConfig;
 import com.beiying.apm.Env;
 import com.beiying.apm.core.Config;
 import com.beiying.apm.core.Manager;
 import com.beiying.apm.debug.AnalyzeManager;
+import com.beiying.apm.network.DebugConfig;
 import com.beiying.apm.utils.LogX;
 
 import static com.beiying.apm.Env.DEBUG;
