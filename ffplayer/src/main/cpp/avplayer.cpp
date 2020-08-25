@@ -432,7 +432,7 @@ JNIEXPORT void JNICALL playVideo(JNIEnv *env, jobject context, jstring videoPath
         return;
     }
 
-
+    //视频转换器上下文
     SwsContext* swsContext = sws_getContext(avCodecContext->width, avCodecContext->height, avCodecContext->pix_fmt,//转换前的格式和宽高
                                         avCodecContext->width, avCodecContext->height, AV_PIX_FMT_RGBA, //转换后的格式和宽高
                                         SWS_BILINEAR, //转换方式：重视速度、重视质量、质量锐度等
@@ -580,6 +580,7 @@ JNIEXPORT void JNICALL sound(JNIEnv *env, jobject context, jstring audioPath_, j
             continue;
         }
         LOGE("正在解码%d" ,count++);
+        //为了统一编码格式（采样率等），需要将原始数据进行转换，生成可以设备可以识别的编码格式
         //将解码后的数据转换到缓冲区，以备输出
         swr_convert(swrContext, &out_buffer, 2*44100,
                     (const uint8_t **)(frame->data), frame->nb_samples);

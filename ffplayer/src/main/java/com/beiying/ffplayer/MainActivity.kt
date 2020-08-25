@@ -23,7 +23,7 @@ class MainActivity: AppCompatActivity() {
 
     }
 
-    fun open(view: View) {
+    fun openVideo(view: View) {
         val rxPermissions = RxPermissions(this)
         rxPermissions.requestEach(
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -33,6 +33,20 @@ class MainActivity: AppCompatActivity() {
                 val file: File = File(Environment.getExternalStorageDirectory(), "1/ffmpeg_test.mp4")
                 Log.e("liuyu", file.absolutePath)
                 player.play(file.absolutePath)
+            }
+        }
+    }
+
+    fun openAudio(view: View) {
+        val rxPermissions = RxPermissions(this)
+        rxPermissions.requestEach(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+        ).subscribe {
+            if (it.granted) {
+                val file: File = File(Environment.getExternalStorageDirectory(), "1/test.mp3")
+                Log.e("liuyu", file.absolutePath)
+                player.sound(file.absolutePath, File(Environment.getExternalStorageDirectory(), "1/out.pcm").absolutePath)
             }
         }
     }
