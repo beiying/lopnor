@@ -12,10 +12,10 @@ open class BaseShape(val context: Context) {
 
     var mProgram: Int = 0
 
-    val modelMatrix: FloatArray = FloatArray(16)
-    val viewMatrix: FloatArray = FloatArray(16)
-    val projectionMatrix: FloatArray = FloatArray(16)
-    val mvpMatrix: FloatArray = FloatArray(16)
+    val modelMatrix: FloatArray = FloatArray(16) //模式矩阵
+    val viewMatrix: FloatArray = FloatArray(16) //视角矩阵
+    val projectionMatrix: FloatArray = FloatArray(16)//投影矩阵
+    val mvpMatrix: FloatArray = FloatArray(16) //变换矩阵
 
     var POSITION_COMPONENT_COUNT: Int = 0
     var TEXTURE_COORRDINATES_COMPONENT_COUNT: Int = 2

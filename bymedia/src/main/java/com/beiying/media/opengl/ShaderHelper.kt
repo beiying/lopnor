@@ -42,7 +42,7 @@ class ShaderHelper {
             }
             //将着色器ID和着色器程序内容链接
             GLES20.glShaderSource(shaderObjectId, shaderCode)
-            //编译着色器
+            //在GPU中编译着色器
             GLES20.glCompileShader(shaderObjectId)
 
             val compileStatus = IntArray(1)
@@ -60,7 +60,7 @@ class ShaderHelper {
          * 接下来通过glLinkProgram链接 OpenGL 程序，最后通过glGetProgramiv来验证链接是否失败。
          * */
         fun linkProgram(vertexShaderId: Int, fragmentShaderId: Int): Int {
-            //创建OpenGL程序Id
+            //创建OpenGL程序Id，用于统一管理顶点着色器和片元着色器
             val programObjectId: Int = GLES20.glCreateProgram()
             if (programObjectId == 0) {
                 return 0

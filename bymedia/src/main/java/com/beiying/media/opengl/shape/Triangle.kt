@@ -8,6 +8,8 @@ import com.beiying.media.R
 import com.beiying.media.opengl.ShaderHelper
 import com.beiying.media.opengl.VertexArray
 import java.nio.ByteBuffer
+import java.nio.ByteOrder
+import java.nio.FloatBuffer
 import javax.microedition.khronos.egl.EGLConfig
 import javax.microedition.khronos.opengles.GL
 import javax.microedition.khronos.opengles.GL10
@@ -91,9 +93,14 @@ class Triangle(context: Context): BaseShape(context) {
     private lateinit var vertexArray4: VertexArray
 
     private lateinit var byteBuffer: ByteBuffer
+    private lateinit var vertexBuffer: FloatBuffer
+
+    private var color: FloatArray = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)
 
     init {
+        //初始化在GPU中要运行的顶点着色器程序和片元着色器程序，完成准备工作
         mProgram = ShaderHelper.buildPrograme(context, R.raw.triangle_vertex_shader, R.raw.triangle_fragment_shader)
+
         GLES20.glUseProgram(mProgram)
 
         vertexArray = VertexArray(triangleVertex)
@@ -102,16 +109,34 @@ class Triangle(context: Context): BaseShape(context) {
         vertexArray3 = VertexArray(vec3)
         vertexArray4 = VertexArray(vec4)
 
+        //在GPU中申请空间
         byteBuffer = ByteBuffer.allocateDirect(position.size).put(position)
+        //申请的内存在GPU中的排列顺序
+        //byteBuffer.order(ByteOrder.nativeOrder())
+        vertexBuffer = byteBuffer.asFloatBuffer()
+        vertexBuffer.put(triangleVertex) //将顶点坐标通过FloatBuffer传给GPU
+        vertexBuffer.position(0)
+
         byteBuffer.position(0)
         POSITION_COMPONENT_COUNT = 2
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
+        //获取顶点变量、颜色变量、矩阵变量等在GPU中的内存地址
         aPositionLocation = GLES20.glGetAttribLocation(mProgram, A_POSITION)
         aColorLocation = GLES20.glGetUniformLocation(mProgram, U_COLOR)
         uMatrixLocation = GLES20.glGetUniformLocation(mProgram, U_MATRIX)
         uProMatrixLocation = GLES20.glGetUniformLocation(mProgram, U_PRO_MATRIX)
+
+        //打开允许对变量读写
+        GLES20.glEnableVertexAttribArray(aPositionLocation)
+        //给顶点变量赋值
+        GLES20.glVertexAttribPointer(aPositionLocation, 3, GLES20.GL_FLOAT, false, 3 * 4, vertexBuffer);
+        //给颜色变量赋值
+        GLES20.glUniform4fv(aColorLocation, 1, color, 0)
+
+        //完成赋值之后关闭允许对变量读写
+        GLES20.glDisableVertexAttribArray(aPositionLocation)
 
         vertexArray.setVertexAttribPointer(0, aPositionLocation, POSITION_COMPONENT_COUNT, 0)
 
@@ -128,14 +153,21 @@ class Triangle(context: Context): BaseShape(context) {
         } else {
             Matrix.orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, 0f, 10f)
         }
+        Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, 3f, 120f);
 
+        //设置视角矩阵
+        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f,7f,//摄像机坐标
+                        0f, 0f, 0f,//目标物的中心坐标
+                        0f, 1f, 0f)//相机方向
+        //计算变化矩阵
+        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
     }
 
     override fun onSurfaceDestroyed() {
         super.onSurfaceDestroyed()
     }
 
-    override fun onDrawFrame(gl: GL10?) {
+    override fun onDrawFrame(gl: GL10?) {//开始渲染
         super.onDrawFrame(gl)
         
         GLES20.glUniform4f(aColorLocation, 0.0f, 1.0f, 1.0f, 1.0f)
@@ -152,6 +184,8 @@ class Triangle(context: Context): BaseShape(context) {
 
         GLES20.glUniform4f(aColorLocation, 0.0f, 1.0f, 1.0f, 1.0f)
         GLES20.glUniformMatrix4fv(uMatrixLocation, 1, false, mvpMatrix, 0)
+
+        //绘制三角形
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 3)
     }
 
