@@ -31,4 +31,9 @@
             android:gravity="center"
             android:onClick="openAudio"
             android:text="播放音频"/>
+
+    <SurfaceView
+            android:id="@+id/preview_sv"
+            android:layout_width="match_parent"
+            android:layout_height="200dp" />
 </LinearLayout>

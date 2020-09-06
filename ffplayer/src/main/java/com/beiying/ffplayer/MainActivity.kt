@@ -1,6 +1,7 @@
 package com.beiying.ffplayer
 
 import android.Manifest
+import android.hardware.Camera
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
@@ -12,14 +13,21 @@ import java.io.File
 
 class MainActivity: AppCompatActivity() {
     private lateinit var surfaceView: SurfaceView
+    private lateinit var preSurfaceView: SurfaceView
     private lateinit var player: FFPlayer
+    private lateinit var livePusher: LivePusher
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         surfaceView = findViewById(R.id.player_sv)
+        preSurfaceView = findViewById(R.id.preview_sv)
+
         player = FFPlayer()
         player.setSurfaceView(surfaceView)
+
+        livePusher = LivePusher(this, 800, 480, 800_000, 10, Camera.CameraInfo.CAMERA_FACING_FRONT)
+        livePusher.setPreviewDisplay(preSurfaceView.holder)
 
     }
 

@@ -10,7 +10,7 @@ set(distribution_DIR ${CMAKE_SOURCE_DIR}/libs)
 ##设置依赖库的头文件夹
 include_directories(libs/includes)
 
-##引入rtmpdump
+##引入rtmpdump中的CMakeLists
 add_subdirectory(src/main/cpp/librtmp)
 
 # FFmpeg编译出了7个库,这里添加----avutil
@@ -68,6 +68,14 @@ set_target_properties(avdevice
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/armeabi-v7a/libavdevice.so)
 
+# 添加----x264
+add_library(x264
+        SHARED
+        IMPORTED)
+set_target_properties(x264
+        PROPERTIES IMPORTED_LOCATION
+        ${distribution_DIR}/armeabi-v7a/libx264.so)
+
 # 在cmake脚本中，设置编译选项可以通过add_compile_options命令，也可以通过set命令修改CMAKE_CXX_FLAGS或CMAKE_C_FLAGS。
 # 使用这两种方式在有的情况下效果是一样的，但请注意它们还是有区别的：
 # add_compile_options命令添加的编译选项是针对所有编译器的(包括c和c++编译器)，而set命令设置CMAKE_C_FLAGS或CMAKE_CXX_FLAGS变量
@@ -101,7 +109,7 @@ target_link_libraries( # Specifies the target library.
         # 这里需要注意下,下面这些ffmpeg的so库编译是有先后顺序的
         # 下面的顺序是没问题的,如果想验证编译顺序,可以自己变换顺序试试.
         avutil swresample swscale avcodec avformat avfilter avdevice
-
+        x264
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})
