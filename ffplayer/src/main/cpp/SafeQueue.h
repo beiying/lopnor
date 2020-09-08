@@ -74,7 +74,7 @@ public:
     }
 
 private:
-    queue<int> q;
+    queue<T> q;
     int work;
     pthread_mutex_t mutex;
     pthread_cond_t cond;

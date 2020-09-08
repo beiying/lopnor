@@ -74,7 +74,7 @@ add_library(x264
         IMPORTED)
 set_target_properties(x264
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/armeabi-v7a/libx264.so)
+        ${distribution_DIR}/armeabi-v7a/libx2641.so)
 
 # 在cmake脚本中，设置编译选项可以通过add_compile_options命令，也可以通过set命令修改CMAKE_CXX_FLAGS或CMAKE_C_FLAGS。
 # 使用这两种方式在有的情况下效果是一样的，但请注意它们还是有区别的：
@@ -120,7 +120,6 @@ target_link_libraries( # Specifies the target library.
         # 这里需要注意下,下面这些ffmpeg的so库编译是有先后顺序的
         # 下面的顺序是没问题的,如果想验证编译顺序,可以自己变换顺序试试.
         avutil swresample swscale avcodec avformat avfilter avdevice
-        x264
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})

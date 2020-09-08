@@ -31,6 +31,14 @@ pthread_t pid;//多线程执行推流操作
 uint32_t starTime;//用于音视频同步
 SafeQueue<RTMPPacket *> packets;//x264将编码后的数据放到队列中以供推流
 
+//编码生成NALU单元后封装到RTMPPacket中后的回调
+void videoCallback(RTMPPacket *packet) {
+    if (packet) {
+        packet->m_nTimeStamp = RTMP_GetTime() - starTime;//设置时间戳
+        //添加即将推送的队列中
+        packets.put(packet);
+    }
+}
 
 //释放RTMPPacket
 void releasePacket(RTMPPacket *&packet) {
@@ -74,6 +82,7 @@ void *threadRun(void *args) {
     starTime = RTMP_GetTime();//获取推流时间，用于音视频同步
     //可以开始推流
     readyPushing = 1;
+    packets.setWork(1);
     RTMPPacket *packet = 0;
     while(readyPushing) {//不断从采集并编码后的H264图像队列中取数据
         packets.get(packet);
@@ -100,10 +109,12 @@ void *threadRun(void *args) {
         RTMP_Free(rtmp);
     }
     delete (url);
+    return 0;
 }
 
-JNIEXPORT void JNICALL init() {
+JNIEXPORT void JNICALL initLivePusher() {
     videoChannel = new VideoChannel();
+    videoChannel->setVideoCallback(videoCallback);
 }
 
 JNIEXPORT void JNICALL setVideoEncInfo(JNIEnv *env, jobject context, jint _width, jint _height, jint _fps, jint _bitrate) {
@@ -114,7 +125,7 @@ JNIEXPORT void JNICALL setVideoEncInfo(JNIEnv *env, jobject context, jint _width
     videoChannel->setVideoEncInfo(_width, _height, _fps, _bitrate);
 }
 //在子线程完成推流操作
-JNIEXPORT void JNICALL start(JNIEnv *env, jobject context, jstring _path) {
+JNIEXPORT void JNICALL startLivePusher(JNIEnv *env, jobject context, jstring _path) {
     const char *path = env->GetStringUTFChars(_path, 0);
     if (isStart) {
         return;
@@ -151,15 +162,17 @@ static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMe
     return JNI_TRUE;
 }
 
-static JNINativeMethod jni_methods_table[] = {
-        {"native_init", "()V", (void *) init},
-        {"native_setVideoEncInfo", "(IIII)V", (void *) setVideoEncInfo},
-        {"native_start", "(Ljava/lang/String;)V", (void *) start},
-        {"native_pushVideo", "([B)V", (void *) pushVideo}
+static JNINativeMethod jni_methods_tables[] = {
+        {"initLivePusher", "()V", (void *) initLivePusher},
+        {"setVideoEncInfo", "(IIII)V", (void *) setVideoEncInfo},
+        {"startLivePusher", "(Ljava/lang/String;)V", (void *) startLivePusher},
+        {"pushVideo", "([B)V", (void *) pushVideo}
 };
+// 获取数组的大小
+# define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))
 
 int register_ndk_onload(JNIEnv *env) {
-    return registerNativeMethods(env, JNIREG_CLASS, NULL, 0);
+    return registerNativeMethods(env, JNIREG_CLASS, jni_methods_tables, NELEM(jni_methods_tables));
 }
 
 JNIEXPORT jint JNI_OnLoad(JavaVM *vm, void *reserved) {

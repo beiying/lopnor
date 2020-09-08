@@ -20,7 +20,7 @@ class VideoChannel(val livePusher: LivePusher, activity: Activity, width: Int, h
     override fun onPreviewFrame(data: ByteArray, camera: Camera) {
         Log.e("liuyu", "VideoChannel onPreviewFrame:${data.size}")
         if (isLiving) {
-            livePusher.native_pushVideo(data)
+            livePusher.pushVideo(data)
         }
     }
 
@@ -33,7 +33,7 @@ class VideoChannel(val livePusher: LivePusher, activity: Activity, width: Int, h
     }
 
     override fun onChanged(width: Int, height: Int) {
-        livePusher.native_setVideoEncInfo(width, height, fps, bitrate)
+        livePusher.setVideoEncInfo(width, height, fps, bitrate)
     }
 
     fun startLive() {

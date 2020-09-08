@@ -6,6 +6,7 @@
 #include "VideoChannel.h"
 #include "../../../libs/includes/libsx264/x264.h"
 #include "librtmp/rtmp.h"
+#include "logger.h"
 
 void VideoChannel::setVideoEncInfo(int width, int height, int fps, int bitrate) {
     mWidth = width;
@@ -55,6 +56,10 @@ void VideoChannel::setVideoEncInfo(int width, int height, int fps, int bitrate) 
 
 }
 
+void VideoChannel::setVideoCallback(VideoCallback videoCallback) {
+    this->videoCallback = videoCallback;
+}
+
 void VideoChannel::encodeData(int8_t *data) {
     //将NV21数据转换为YUV_I420，Y存放的位置相同，UV的存放位置不同
 
@@ -89,7 +94,7 @@ void VideoChannel::encodeData(int8_t *data) {
             memcpy(pps, pp_nal[i].p_payload + 4, pps_len);
             sendSpsPps(sps, pps, sps_len, pps_len);//关键帧需要将SPS和PPS封装到RMTPPacket中一起发送出去，以便于播放直播画面时解码器解码
         } else {
-
+            sendFrame(pp_nal[i].i_type, pp_nal[i].p_payload, pp_nal[i].i_payload);
         }
     }
 }
@@ -149,4 +154,53 @@ void VideoChannel::sendSpsPps(uint8_t *sps, uint8_t *pps, int sps_len, int pps_l
     //不使用绝对时间
     packet->m_hasAbsTimestamp = 0;
     packet->m_headerType = RTMP_PACKET_SIZE_MINIMUM;
+    if (videoCallback) {
+        videoCallback(packet);
+    }
+}
+
+
+void VideoChannel::sendFrame(int type, uint8_t *payload, int i_payload) {
+    if (payload[2] == 0x00) {
+        i_payload -= 4;
+        payload += 4;
+    } else {
+        i_payload -= 3;
+        payload += 3;
+    }
+
+    int bodySize = 9 + i_payload;
+    RTMPPacket *packet = new RTMPPacket;
+    RTMPPacket_Alloc(packet, bodySize);
+
+    packet->m_body[0] = 0x27;//设置非关键帧类型
+    if (type == NAL_SLICE_IDR) {//说明该NALU单元是关键帧的
+        packet->m_body[0] = 0x17;
+        LOGE("关键帧");
+    }
+
+    //设置类型
+    packet->m_body[1] = 0x01;
+
+    //设置时间戳
+    packet->m_body[2] = 0x00;
+    packet->m_body[3] = 0x00;
+    packet->m_body[4] = 0x00;
+
+    //四个字节的数据长度
+    packet->m_body[5] = (i_payload >> 24) & 0xFF;
+    packet->m_body[6] = (i_payload >> 16) & 0xFF;
+    packet->m_body[7] = (i_payload >> 8) & 0xFF;
+    packet->m_body[8] = (i_payload) & 0xFF;
+
+    //图片数据
+    memcpy(&packet->m_body[9], payload, i_payload);
+
+    packet->m_hasAbsTimestamp = 0;
+    packet->m_nBodySize = bodySize;
+    packet->m_packetType = RTMP_PACKET_TYPE_VIDEO;
+    packet->m_nChannel = 0x10;
+    packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
+    videoCallback(packet);
+
 }

@@ -9,17 +9,17 @@ class LivePusher(activity: Activity, width: Int, height:Int, bitrate: Int, fps: 
     private var videoChannel: VideoChannel = VideoChannel(this, activity, width, height, bitrate, fps, cameraId)
 
     init {
-        native_init()
+        initLivePusher()
     }
     companion object {
         init {
             System.loadLibrary("livepusher")
         }
     }
-    external fun native_init()
-    external fun native_setVideoEncInfo(width: Int, height: Int, fps: Int, bitrate: Int)
-    external fun native_start(path: String)
-    external fun native_pushVideo(data: ByteArray)
+    external fun initLivePusher()
+    external fun setVideoEncInfo(width: Int, height: Int, fps: Int, bitrate: Int)
+    external fun startLivePusher(path: String)
+    external fun pushVideo(data: ByteArray)
 
     fun setPreviewDisplay(surfaceHolder: SurfaceHolder) {
         videoChannel.setPreviewDisplay(surfaceHolder)
@@ -30,7 +30,7 @@ class LivePusher(activity: Activity, width: Int, height:Int, bitrate: Int, fps: 
     }
 
     fun startLive(url: String) {
-        native_start(url)
+        startLivePusher(url)
         videoChannel.startLive()
     }
 }

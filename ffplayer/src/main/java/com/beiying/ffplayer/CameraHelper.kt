@@ -146,7 +146,7 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
-        TODO("Not yet implemented")
+
     }
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera) {
