@@ -90,6 +90,17 @@ add_library(avplayer
         src/main/cpp/JNIEnvHelper.h
         src/main/cpp/JNIEnvHelper.cpp
         )
+add_library(livepusher
+        SHARED
+        src/main/cpp/livepusher.cpp
+        src/main/cpp/VideoChannel.h
+        src/main/cpp/VideoChannel.cpp
+        src/main/cpp/SafeQueue.h
+        src/main/cpp/SafeQueue.cpp
+        src/main/cpp/logger.h
+        src/main/cpp/JNIEnvHelper.h
+        src/main/cpp/JNIEnvHelper.cpp
+        )
 add_library( # Specifies the name of the library.
         algorithm
 
@@ -101,6 +112,20 @@ add_library( # Specifies the name of the library.
 
 target_link_libraries( # Specifies the target library.
         avplayer
+        GLESv2 EGL
+        OpenSLES
+        jnigraphics
+        android
+        rtmp
+        # 这里需要注意下,下面这些ffmpeg的so库编译是有先后顺序的
+        # 下面的顺序是没问题的,如果想验证编译顺序,可以自己变换顺序试试.
+        avutil swresample swscale avcodec avformat avfilter avdevice
+        x264
+        # Links the target library to the log library
+        # included in the NDK.
+        ${log-lib})
+target_link_libraries( # Specifies the target library.
+        livepusher
         GLESv2 EGL
         OpenSLES
         jnigraphics

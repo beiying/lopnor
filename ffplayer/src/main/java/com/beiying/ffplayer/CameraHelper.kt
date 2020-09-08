@@ -149,21 +149,24 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
         TODO("Not yet implemented")
     }
 
-    override fun onPreviewFrame(data: ByteArray?, camera: Camera?) {
+    override fun onPreviewFrame(data: ByteArray?, camera: Camera) {
         when(rotation) {
             Surface.ROTATION_0 -> {
                 rotation90(data)
             }
-            Surface.ROTATION_90 -> {
+            Surface.ROTATION_90 -> {//横屏，左边是头部（home键在右边）
+
             }
-            Surface.ROTATION_270 -> {
+            Surface.ROTATION_270 -> {//横屏，头部在右边
 
             }
         }
+        previewCallback.onPreviewFrame(bytes, camera)
+        camera.addCallbackBuffer(buffer)
     }
 
     private fun rotation90(data: ByteArray?) {
-        TODO("Not yet implemented")
+
     }
 
     fun setOnChangedSizeListener(listener: OnChangedSizeListener) {
