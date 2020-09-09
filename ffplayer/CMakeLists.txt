@@ -76,6 +76,14 @@ set_target_properties(x264
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/armeabi-v7a/libx2641.so)
 
+# 添加----faac
+add_library(faac
+        SHARED
+        IMPORTED)
+set_target_properties(faac
+        PROPERTIES IMPORTED_LOCATION
+        ${distribution_DIR}/armeabi-v7a/libfaac.so)
+
 # 在cmake脚本中，设置编译选项可以通过add_compile_options命令，也可以通过set命令修改CMAKE_CXX_FLAGS或CMAKE_C_FLAGS。
 # 使用这两种方式在有的情况下效果是一样的，但请注意它们还是有区别的：
 # add_compile_options命令添加的编译选项是针对所有编译器的(包括c和c++编译器)，而set命令设置CMAKE_C_FLAGS或CMAKE_CXX_FLAGS变量
@@ -134,6 +142,7 @@ target_link_libraries( # Specifies the target library.
         # 下面的顺序是没问题的,如果想验证编译顺序,可以自己变换顺序试试.
         avutil swresample swscale avcodec avformat avfilter avdevice
         x264
+        faac
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib})
