@@ -46,7 +46,7 @@ class AudioChannel(val livePusher: LivePusher, channels: Int) {
     inner class AudioTask : Runnable {
         override fun run() {
             audioRecord.startRecording()
-            var bytes: ByteArray = ByteArray(minBufferSize)
+            var bytes: ByteArray = ByteArray(inputSamples)
             while (isLiving) {
                 var len: Int = audioRecord.read(bytes, 0, bytes.size)
                 livePusher.pushAudio(bytes)
