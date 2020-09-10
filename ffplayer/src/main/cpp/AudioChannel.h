@@ -18,6 +18,8 @@ public:
     void setAudioEncInfo(int sampleInHZ, int channels);
     int getInputSamples();
     void setAudioCallback(AudioCallback audioCallback);
+
+    RTMPPacket* getAudioTag();//获取Audio编码器信息
 private:
     int channels;
     faacEncHandle audioCodec;

@@ -16,6 +16,9 @@ void AudioChannel::encodeData(int8_t *data) {
 
         //前两个字节都是固定的
         packet->m_body[0] = 0xAF;
+        if(channels == 1) {
+            packet->m_body[0] = 0xAE;
+        }
         packet->m_body[1] = 0x01;
 
         //之后的是aac数据
@@ -55,4 +58,30 @@ int AudioChannel::getInputSamples() {
 
 void AudioChannel::setAudioCallback(AudioCallback audioCallback) {
     this->audioCallback = audioCallback;
+}
+//获取编码器参数，并封装到RTMPPacket推送到服务器，供解码器解码使用
+RTMPPacket* AudioChannel::getAudioTag() {
+    u_char *buf;
+    u_long len;
+    faacEncGetDecoderSpecificInfo(audioCodec, &buf, &len);//获取编码器信息
+    int bodySize = 2 + len;
+    RTMPPacket *packet = new RTMPPacket;
+    RTMPPacket_Alloc(packet, bodySize);
+
+    packet->m_body[0] = 0xAF;
+    if (channels == 1) {
+        packet->m_body[0] = 0xAE;
+    }
+    packet->m_body[1] = 0x00;
+    memcpy(&packet->m_body[2], buf, len);
+
+    //设置Packet参数
+    packet->m_hasAbsTimestamp = 0;
+    packet->m_nBodySize = bodySize;
+    packet->m_packetType = RTMP_PACKET_TYPE_AUDIO;
+    packet->m_nChannel = 0x11;
+    packet->m_headerType = RTMP_PACKET_SIZE_LARGE;
+
+    return packet;
+
 }

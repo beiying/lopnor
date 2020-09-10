@@ -86,6 +86,7 @@ void *threadRun(void *args) {
     readyPushing = 1;
     packets.setWork(1);
     RTMPPacket *packet = 0;
+    videoCallback(audioChannel->getAudioTag());//保证一开始就将音频编码器参数推送到服务器
     while(readyPushing) {//不断从采集并编码后的H264图像队列中取数据
         packets.get(packet);
         LOGE("取出一帧数据");
