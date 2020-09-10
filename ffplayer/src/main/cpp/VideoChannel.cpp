@@ -94,6 +94,7 @@ void VideoChannel::encodeData(int8_t *data) {
             memcpy(pps, pp_nal[i].p_payload + 4, pps_len);
             sendSpsPps(sps, pps, sps_len, pps_len);//关键帧需要将SPS和PPS封装到RMTPPacket中一起发送出去，以便于播放直播画面时解码器解码
         } else {
+            //发送关键帧或非关键帧数据
             sendFrame(pp_nal[i].i_type, pp_nal[i].p_payload, pp_nal[i].i_payload);
         }
     }

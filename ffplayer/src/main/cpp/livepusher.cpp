@@ -13,6 +13,7 @@
 #include "VideoChannel.h"
 #include "logger.h"
 #include "SafeQueue.h"
+#include "AudioChannel.h"
 
 extern "C" {
 #include <libavcodec/jni.h>
@@ -22,6 +23,7 @@ extern "C" {
 static JavaVM* javaVm;
 
 VideoChannel *videoChannel;
+AudioChannel *audioChannel;
 
 int isStart;//是否处于推流中
 int readyPushing;//是否已经准备好推流
@@ -151,6 +153,27 @@ JNIEXPORT void JNICALL pushVideo(JNIEnv *env, jobject context, jbyteArray _data)
     env->ReleaseByteArrayElements(_data, data, 0);
 }
 
+//开始推音频流，将麦克风采集的pcm音频原始数据
+JNIEXPORT void JNICALL pushAudio(JNIEnv *env, jobject context, jbyteArray _data) {
+    jbyte *data = env->GetByteArrayElements(_data, NULL);
+
+    if (!audioChannel || !readyPushing) {
+        return;
+    }
+
+    audioChannel->encodeData(data);
+
+    env->ReleaseByteArrayElements(_data, data, 0);
+}
+
+
+JNIEXPORT void JNICALL setAudioEncInfo(JNIEnv *env, jobject context, jint _sample, jint _channels) {
+    if (audioChannel) {
+        audioChannel->setAudioEncInfo(_sample, _channels);
+    }
+}
+
+
 static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *jniNativeMethods, int methodsSize) {
     jclass clazz = env->FindClass(className);
     if (clazz == NULL) {
@@ -166,7 +189,9 @@ static JNINativeMethod jni_methods_tables[] = {
         {"initLivePusher", "()V", (void *) initLivePusher},
         {"setVideoEncInfo", "(IIII)V", (void *) setVideoEncInfo},
         {"startLivePusher", "(Ljava/lang/String;)V", (void *) startLivePusher},
-        {"pushVideo", "([B)V", (void *) pushVideo}
+        {"pushVideo", "([B)V", (void *) pushVideo},
+        {"pushAudio", "([B)V", (void *) pushAudio},
+        {"setAudioEncInfo", "(II)V", (void *) setAudioEncInfo}
 };
 // 获取数组的大小
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))

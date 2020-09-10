@@ -60,7 +60,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     fun startLive(view: View) {
-        livePusher.startLive("rtmp://47.101.155.208:1935/myapp")
+        livePusher.startLive("rtmp://47.101.155.208/myapp")
     }
     fun stopLive(view: View) {}
 

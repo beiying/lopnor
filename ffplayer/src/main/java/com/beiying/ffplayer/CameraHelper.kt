@@ -137,16 +137,19 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
     }
 
     override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+        Log.e("liuyu", "CameraHelper surfaceChanged")
         stopPreview()
         startPreView()
     }
 
     override fun surfaceDestroyed(holder: SurfaceHolder?) {
+        Log.e("liuyu", "CameraHelper surfaceDestroyed")
         stopPreview()
     }
 
     override fun surfaceCreated(holder: SurfaceHolder?) {
-
+        Log.e("liuyu", "CameraHelper surfaceCreated")
+        startPreView()
     }
 
     override fun onPreviewFrame(data: ByteArray?, camera: Camera) {
