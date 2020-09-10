@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include <inttypes.h>
-#include <libsx264/x264.h>
+#include <libx264/x264.h>
 #include <jni.h>
 #include "librtmp/rtmp.h"
 

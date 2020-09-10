@@ -4,7 +4,6 @@
 
 #include <cstring>
 #include "VideoChannel.h"
-#include "../../../libs/includes/libsx264/x264.h"
 #include "librtmp/rtmp.h"
 #include "logger.h"
 

@@ -35,6 +35,7 @@ class LivePusher(activity: Activity, width: Int, height:Int, bitrate: Int, fps: 
     fun startLive(url: String) {
         startLivePusher(url)
         videoChannel.startLive()
+        audioChannel.startLive()
     }
 
 }

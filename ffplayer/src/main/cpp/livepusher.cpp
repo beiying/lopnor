@@ -9,7 +9,7 @@
 #include <sys/ptrace.h>
 #include <pthread.h>
 #include "librtmp/rtmp.h"
-#include "libsx264/x264.h"
+#include "libx264/x264.h"
 #include "VideoChannel.h"
 #include "logger.h"
 #include "SafeQueue.h"
@@ -117,6 +117,8 @@ void *threadRun(void *args) {
 JNIEXPORT void JNICALL initLivePusher() {
     videoChannel = new VideoChannel();
     videoChannel->setVideoCallback(videoCallback);
+    audioChannel = new AudioChannel();
+    audioChannel->setAudioCallback(videoCallback);
 }
 
 JNIEXPORT void JNICALL setVideoEncInfo(JNIEnv *env, jobject context, jint _width, jint _height, jint _fps, jint _bitrate) {
@@ -174,6 +176,13 @@ JNIEXPORT void JNICALL setAudioEncInfo(JNIEnv *env, jobject context, jint _sampl
 }
 
 
+JNIEXPORT jint JNICALL getInputSamples(JNIEnv *env, jobject context) {
+    if (audioChannel) {
+        return audioChannel->getInputSamples();
+    }
+    return -1;
+}
+
 static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *jniNativeMethods, int methodsSize) {
     jclass clazz = env->FindClass(className);
     if (clazz == NULL) {
@@ -191,7 +200,8 @@ static JNINativeMethod jni_methods_tables[] = {
         {"startLivePusher", "(Ljava/lang/String;)V", (void *) startLivePusher},
         {"pushVideo", "([B)V", (void *) pushVideo},
         {"pushAudio", "([B)V", (void *) pushAudio},
-        {"setAudioEncInfo", "(II)V", (void *) setAudioEncInfo}
+        {"setAudioEncInfo", "(II)V", (void *) setAudioEncInfo},
+        {"getInputSamples", "()I", (void *) getInputSamples}
 };
 // 获取数组的大小
 # define NELEM(x) ((int) (sizeof(x) / sizeof((x)[0])))

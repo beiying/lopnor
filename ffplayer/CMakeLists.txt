@@ -103,6 +103,8 @@ add_library(livepusher
         src/main/cpp/livepusher.cpp
         src/main/cpp/VideoChannel.h
         src/main/cpp/VideoChannel.cpp
+        src/main/cpp/AudioChannel.h
+        src/main/cpp/AudioChannel.cpp
         src/main/cpp/SafeQueue.h
         src/main/cpp/SafeQueue.cpp
         src/main/cpp/logger.h
