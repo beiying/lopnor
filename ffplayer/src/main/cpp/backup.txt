@@ -1,0 +1,314 @@
+//音频播放的缓冲回调
+void PcmCall(SLAndroidSimpleBufferQueueItf bf, const char *path) {
+    LOGI("PcmCall");
+    static FILE *fp = NULL;
+    static char *buf = NULL;
+    if (!buf) {
+        buf = new char[1024*1024];
+    }
+    if (!fp) {
+        fp = fopen(path, "rb");
+    }
+    if (!fp) return;
+    if (feof(fp) == 0) {
+        int len = fread(buf, 1, 1024, fp);
+        if(len > 0) {
+            (*bf)->Enqueue(bf, buf, len);
+        }
+    }
+}
+
+//static void android_signal_handler(int signum, siginfo_t *info, void *reserved) {
+//    if (javaVM == NULL) {
+//        JNIEnvHelper jniEnvHelper;
+//        jclass errHandleClass = findClass(jniEnvHelper.env, "com/beiyng/core/HandlerNativeError");
+//    }
+//    old_signalhandlers[signum].sa_handler(signum);
+//}
+//
+//void setUpGlobalSignalHandler() {
+//    struct sigaction handler;
+//    memset(&handler, 0, sizeof(struct sigaction));
+//    handler.sa_sigaction = android_signal_hanlder;
+//    handler.sa_flags = SA_RESETHAND;
+//#define CATCHSIG(X) sigaction(X, &handler, &old_signalhandlers[X])//给信号设置一个新的异常处理函数
+//    CATCHSIG(SIGQUIT);
+//    CATCHSIG(SIGILL);
+//    CATCHSIG(SIGABRT);
+//    CATCHSIG(SIGBUS);
+//    CATCHSIG(SIGFPE);
+//    CATCHSIG(SIGSEGV);
+//    CATCHSIG(SIGPIPE);
+//    CATCHSIG(SIGTERM);
+//#undef CATCHSIG
+//}
+
+JNIEXPORT jstring JNICALL urlProtocolInfo(JNIEnv *env,jobject context) {
+}
+
+
+JNIEXPORT jstring JNICALL avFormatInfo(JNIEnv *env, jobject context) {
+
+}
+
+JNIEXPORT jstring JNICALL avCodecInfo(JNIEnv *env, jobject context) {
+
+}
+
+JNIEXPORT jstring JNICALL avFilterInfo(JNIEnv *env, jobject context) {
+
+}
+
+JNIEXPORT void JNICALL testPlayVideo(JNIEnv *env, jobject context, jstring videoPath_, jobject surface) {
+    const char *videoPath = env->GetStringUTFChars(videoPath_, 0);
+    //初始化解封装
+    av_register_all();
+
+    //初始化编解码器
+    avcodec_register_all();
+
+    //初始化网络
+    avformat_network_init();
+
+    //初始化AVFormatContext
+    AVFormatContext* formatContext = avformat_alloc_context();//非so包初始化AVFormatContext，需要自己手动释放内存空间
+
+
+    //打开要解封装的文件
+    int ret = avformat_open_input(&formatContext, videoPath, NULL, NULL);
+    if (ret != 0) {
+        LOGE("解封装，打开视频失败: %s", av_err2str(ret));
+        avformat_close_input(&formatContext);
+        return;
+    } else {
+        LOGI("解封装，成功打开视频 duration = %lld, nb_streams=%d", formatContext->duration, formatContext->nb_streams);
+    }
+
+    //获取流信息，对于flv格式可以用于获取时长信息
+    ret = avformat_find_stream_info(formatContext, NULL);
+    if (ret != 0) {
+        LOGE("获取流信息失败: %s", av_err2str(ret));
+        avformat_close_input(&formatContext);
+        return;
+    } else {
+        LOGI("获取流信息成功 duration = %lld, nb_streams=%d", formatContext->duration, formatContext->nb_streams);
+    }
+
+    //遍历每个媒体流
+    int videoStreamIndex = 0;
+    int audioStreamIndex = 1;
+    for (int i = 0;i < formatContext->nb_streams;i++) {
+        AVStream* stream = formatContext->streams[i];
+        if (stream->codecpar->codec_type == AVMEDIA_TYPE_VIDEO) {
+            videoStreamIndex = i;
+        } else if (stream->codecpar->codec_type == AVMEDIA_TYPE_AUDIO) {
+            audioStreamIndex = i;
+        }
+    }
+
+
+    //软解码视频
+    AVCodec* vAvCodec = avcodec_find_decoder(formatContext->streams[videoStreamIndex]->codecpar->codec_id);
+    AVCodec* aAvCodec = avcodec_find_decoder(formatContext->streams[audioStreamIndex]->codecpar->codec_id);
+//    AVCodec* vAvCodec = avcodec_find_decoder_by_name("h264_mediacodec");//硬解码，需要Java虚拟机环境JavaVM
+
+    if (vAvCodec != 0) {
+        LOGE("avcodec find failed");
+    }
+    //视频解码器初始化
+    AVCodecContext* avCodecContext = avcodec_alloc_context3(vAvCodec);
+    AVCodecContext* audioAvCodecContext = avcodec_alloc_context3(aAvCodec);
+    avcodec_parameters_to_context(avCodecContext, formatContext->streams[videoStreamIndex]->codecpar);
+    avcodec_parameters_to_context(audioAvCodecContext, formatContext->streams[audioStreamIndex]->codecpar);
+    avCodecContext->thread_count = 1;//单线程解码视频
+    audioAvCodecContext->thread_count = 1;//单线程解码音频
+    //avCodecContext->thread_count = 8;//多线程解码
+
+    //打开视频解码器
+    ret = avcodec_open2(avCodecContext, 0, NULL);
+    if(ret != 0) {
+        LOGE("avcodec_open2 failed");
+    }
+
+    //使用音频解码器,参考视频解码器
+    // todo
+
+    //在堆上申请空间，完成初始化，需要释放
+    AVPacket* avPacket = av_packet_alloc();
+    AVFrame* avFrame = av_frame_alloc();
+
+    //初始化视频图像像素格式转换的上下文
+    SwsContext *swsContext = NULL;
+    int outWidth = 1280;
+    int outHeight = 720;
+    char *rgb = new char[1920*1080*4];
+
+    //初始化音频重采样上下文
+    SwrContext *swrContext = swr_alloc();
+    swrContext = swr_alloc_set_opts(swrContext, av_get_default_channel_layout(2), AV_SAMPLE_FMT_S16,
+            avCodecContext->sample_rate, av_get_default_channel_layout(avCodecContext->channels),
+            avCodecContext->sample_fmt,avCodecContext->sample_rate,0, 0);
+    ret = swr_init(swrContext);
+    if (ret != 0) {
+        LOGE("swr_init failed");
+    } else {
+        LOGI("swr_init success");
+    }
+    char *pcm = new char[48000*4*2];
+
+    ANativeWindow *nativeWindow = ANativeWindow_fromSurface(env, surface);
+    //设置native window的buffer大小，可自动拉伸
+    ANativeWindow_setBuffersGeometry(nativeWindow, outWidth, outWidth, WINDOW_FORMAT_RGBA_8888);
+    ANativeWindow_Buffer windowBuffer;
+    ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
+    uint8_t *dst = (uint8_t *)windowBuffer.bits;
+    memcpy(dst, rgb, outWidth * outHeight * 4);
+    ANativeWindow_unlockAndPost(nativeWindow);
+
+    long long start = GetNowMs();
+    int frameCount = 0;
+    for (;;) {
+        if(GetNowMs() - start >= 3000) {
+            LOGI("now decode fps is %d", frameCount / 3);
+            start = GetNowMs();
+            frameCount = 0;
+        }
+        ret = av_read_frame(formatContext, avPacket);
+        if (ret != 0) {
+            LOGI("读取到结尾处");
+            av_seek_frame(formatContext, videoStreamIndex, formatContext->duration / 2, AVSEEK_FLAG_BACKWARD|AVSEEK_FLAG_FRAME);
+            continue;
+        }
+        LOGI("获取AVPacket stream=%d,size=%d,pts=%lld,flag=%d", avPacket->stream_index, avPacket->size, avPacket->pts, avPacket->flags);
+
+        AVCodecContext *cc = avCodecContext;
+        if (avPacket->stream_index == audioStreamIndex) {
+            cc = audioAvCodecContext;
+        }
+        //发送到线程中解码
+        ret = avcodec_send_packet(cc, avPacket);
+        if (ret != 0) {
+            LOGI("avcodec_send_packet failed");
+        }
+
+        for(;;) {
+            ret = avcodec_receive_frame(cc, avFrame);
+            if (ret != 0) {
+                LOGI("avcodec_receive_frame failed");
+                break;
+            }
+            LOGI("avcodec_receive_frame frame=%lld", avFrame->pts);
+            if (cc == avCodecContext) {//如果是视频帧，统计帧数
+                frameCount++;
+                //考虑到图像格式可能在解码之前未解析出来，而无法获取宽高的情况，最后将该方法放在解码后调用
+                swsContext = sws_getCachedContext(swsContext, avFrame->width, avFrame->height,
+                                                  (AVPixelFormat)avFrame->format, outWidth, outHeight,
+                                                  AV_PIX_FMT_RGBA, SWS_FAST_BILINEAR, 0, 0, 0);
+                if(!swsContext) {
+                    LOGE("sws_context get failed");
+                } else {
+                    uint8_t  *data[AV_NUM_DATA_POINTERS] = {0};
+                    data[0] = (uint8_t *)rgb;
+                    int line[AV_NUM_DATA_POINTERS] = {0};
+                    line[0] = outWidth * 4;
+                    //视频帧解码后进行像素格式和尺寸转换
+                    int h = sws_scale(swsContext, avFrame->data, avFrame->linesize, 0, avFrame->height, data, line);
+                    LOGI("sws_scale= %d", h);
+                    if (h > 0) {
+                        ANativeWindow_lock(nativeWindow, &windowBuffer, 0);
+                        uint8_t  *dst = (uint8_t *)windowBuffer.bits;
+                        memcpy(dst, rgb, outWidth * outHeight * 4);
+                        ANativeWindow_unlockAndPost(nativeWindow);
+                    }
+                }
+            }
+            if (cc == audioAvCodecContext) {//处理音频
+                uint8_t *out[2] = {0};
+                out[0] = (uint8_t *)pcm;
+                int len = swr_convert(swrContext,out,
+                                    avFrame->nb_samples,
+                                    (const uint8_t **)(avFrame->data),
+                                    avFrame->nb_samples);
+                LOGI("swr_convert = %d", len);
+            }
+        }
+
+
+        av_packet_unref(avPacket);
+    }
+    delete rgb;
+    delete pcm;
+    avformat_close_input(&formatContext);
+
+
+
+}
+
+JNIEXPORT void JNICALL testPlayAudio(JNIEnv *env, jobject context, jstring audioPath_) {
+    SLEngineItf engine = createSL();
+    if (engine) {
+        LOGI("CreateSL Success");
+    } else {
+        LOGE("CreateSL Failed");
+    }
+
+    //2、创建混音器
+    SLObjectItf mix = NULL;
+    SLresult re = (*engine)->CreateOutputMix(engine, &mix, 0,0,0);
+    if (re != SL_RESULT_SUCCESS) {
+        LOGI("CreateOutputMix Failed");
+    }
+    re = (*mix)->Realize(mix, SL_BOOLEAN_FALSE);
+    if (re != SL_RESULT_SUCCESS) {
+        LOGI("Mix Realize Failed");
+    }
+    SLDataLocator_OutputMix outmix = {SL_DATALOCATOR_OUTPUTMIX, mix};
+    SLDataSink audioSink = {&outmix, 0};
+
+    //3、配置音频信息
+
+    //
+    SLDataLocator_AndroidSimpleBufferQueue queue = {SL_DATALOCATOR_ANDROIDSIMPLEBUFFERQUEUE, 10};
+    SLDataFormat_PCM pcm = {
+            SL_DATAFORMAT_PCM,
+            2,
+            SL_SAMPLINGRATE_44_1,
+            SL_PCMSAMPLEFORMAT_FIXED_16,
+            SL_PCMSAMPLEFORMAT_FIXED_16,
+            SL_SPEAKER_FRONT_LEFT|SL_SPEAKER_FRONT_RIGHT,
+            SL_BYTEORDER_LITTLEENDIAN//字节序
+    };
+    SLDataSource ds = {&queue, &pcm};
+
+    //4、创建播放器
+    SLObjectItf player = NULL;
+    SLPlayItf  iplayer = NULL;
+    SLAndroidSimpleBufferQueueItf  pcmQueue = NULL;
+    const SLInterfaceID  ids[] = {SL_IID_BUFFERQUEUE};
+    const SLboolean  req[] = {SL_BOOLEAN_TRUE};
+    re = (*engine)->CreateAudioPlayer(engine, &player, &ds, &audioSink,
+            sizeof(ids) / sizeof(SLInterfaceID),ids,req);
+    if (re != SL_RESULT_SUCCESS) {
+        LOGE("CreateAudioPlayer Failed");
+    } else {
+        LOGI("CreateAudioPlayer Success");
+    }
+
+    (*player)->Realize(player, SL_BOOLEAN_FALSE);
+    re = (*player)->GetInterface(player, SL_IID_PLAY, &iplayer);//获取播放器接口
+    if (re != SL_RESULT_SUCCESS) {
+
+    }
+
+    re = (*player)->GetInterface(player, SL_IID_BUFFERQUEUE, &pcmQueue);
+    if (re != SL_RESULT_SUCCESS) {
+        LOGE("GetInterface SL_IID_BUFFERQUEUE Failed");
+    }
+
+    //设置回调函数，播放队列空时调用
+//    (*pcmQueue)->RegisterCallback(pcmQueue, PcmCall, 0);
+    (*iplayer)->SetPlayState(iplayer, SL_PLAYSTATE_PLAYING);
+    //启动队列回调
+    (*pcmQueue)->Enqueue(pcmQueue, "", 1);
+
+}

@@ -97,6 +97,16 @@ add_library(avplayer
         src/main/cpp/logger.h
         src/main/cpp/JNIEnvHelper.h
         src/main/cpp/JNIEnvHelper.cpp
+        src/main/cpp/PlayerController.h
+        src/main/cpp/PlayerController.cpp
+        src/main/cpp/JavaCallHelper.h
+        src/main/cpp/JavaCallHelper.cpp
+        src/main/cpp/macro.h
+        src/main/cpp/VideoPlayChannel.h
+        src/main/cpp/VideoPlayChannel.cpp
+        src/main/cpp/AudioPlayChannel.h
+        src/main/cpp/AudioPlayChannel.cpp
+        src/main/cpp/BasePlayChannel.h
         )
 add_library(livepusher
         SHARED
@@ -132,6 +142,7 @@ target_link_libraries( # Specifies the target library.
         avutil swresample swscale avcodec avformat avfilter avdevice
         # Links the target library to the log library
         # included in the NDK.
+        z
         ${log-lib})
 target_link_libraries( # Specifies the target library.
         livepusher
