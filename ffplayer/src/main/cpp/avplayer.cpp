@@ -28,7 +28,6 @@ extern "C" {
 #include <libavutil/log.h>
 #include <libavcodec/jni.h>
 #include <libswscale/swscale.h>
-
 #include "libswresample/swresample.h"
 #include "libavutil/opt.h"
 #include "libavutil/imgutils.h"

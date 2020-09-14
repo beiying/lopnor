@@ -15,6 +15,7 @@ extern "C" {
 #include "libavutil/time.h"
 #include "libavutil/imgutils.h"
 #include "libswscale/swscale.h"
+#include "libswresample/swresample.h"
 };
 
 /**
@@ -59,6 +60,7 @@ public:
     volatile int channleId;
     volatile bool isPlaying;
     AVCodecContext *codecContext;
+    SwrContext *swrContext;
     JavaCallHelper *javaCallHelper;
 };
 

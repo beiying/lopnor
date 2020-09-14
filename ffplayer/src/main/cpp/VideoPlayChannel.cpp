@@ -92,7 +92,8 @@ void VideoPlayChannel::playContent() {
         sws_scale(swsContext, reinterpret_cast<const uint8_t *const *>(frame->data), frame->linesize, 0, frame->height, dst_data, dst_linesize);
         //渲染回调
         renderFrame(dst_data[0], dst_linesize[0],codecContext->width, codecContext->height);
-        av_usleep(16 * 1000000);
+        LOGE("解码一帧视频 %d", frame_queue.size());
+        av_usleep(16 * 1000);
         releaseAvFrame(frame);
     }
     av_freep(&dst_data[0]);

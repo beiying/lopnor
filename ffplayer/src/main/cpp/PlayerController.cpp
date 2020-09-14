@@ -101,6 +101,7 @@ void PlayerController::prepareFFmpeg() {
     return;
 }
 
+//在子线程开始播放
 void PlayerController::startPlay() {
     isPlaying = true;
     if (audioPlayChannel) {
