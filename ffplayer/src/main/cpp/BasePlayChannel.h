@@ -23,8 +23,8 @@ extern "C" {
  * */
 class BasePlayChannel {
 public:
-    BasePlayChannel(int id, JavaCallHelper *callHelper, AVCodecContext *context)
-            : channleId(id), javaCallHelper(callHelper), codecContext(context) {
+    BasePlayChannel(int id, JavaCallHelper *callHelper, AVCodecContext *context, AVRational time_base)
+            : channleId(id), javaCallHelper(callHelper), codecContext(context), time_base(time_base) {
 
     }
     virtual ~BasePlayChannel() {
@@ -62,6 +62,8 @@ public:
     AVCodecContext *codecContext;
     SwrContext *swrContext;
     JavaCallHelper *javaCallHelper;
+    AVRational time_base;//时间刻度
+    double clock = 0;//用于音视频同步，记录播放时间线，相对时间
 };
 
 

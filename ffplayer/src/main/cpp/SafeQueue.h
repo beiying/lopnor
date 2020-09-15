@@ -9,6 +9,8 @@ using namespace std;
 
 template <typename T>
 class SafeQueue {
+    typedef void (*ReleaseHandle)(T);
+    typedef void (*SyncHandle)(queue<T> &);
 public:
     SafeQueue() {
         pthread_mutex_init(&mutex, NULL);
@@ -27,7 +29,7 @@ public:
             q.push(new_value);
             pthread_cond_signal(&cond);
         }else {
-
+            releaseHandle(new_value);
         }
         pthread_mutex_unlock(&mutex);
     }
@@ -67,10 +69,26 @@ public:
     void clear() {
         pthread_mutex_lock(&mutex);
         while(!q.empty()) {
+            T value = q.front();
+            releaseHandle(value);
             q.pop();
         }
         pthread_cond_signal(&cond);
         pthread_mutex_unlock(&mutex);
+    }
+
+    void sync() {
+        pthread_mutex_lock(&mutex);
+        syncHandle(q);
+        pthread_mutex_unlock(&mutex);
+    }
+
+    void setReleaseHandle(ReleaseHandle r) {
+        releaseHandle = r;
+    }
+
+    void setSyncHandle(SyncHandle s) {
+        syncHandle = s;
     }
 
 private:
@@ -78,6 +96,8 @@ private:
     int work;
     pthread_mutex_t mutex;
     pthread_cond_t cond;
+    ReleaseHandle releaseHandle;
+    SyncHandle syncHandle;
 };
 
 

@@ -5,7 +5,7 @@
 #include "AudioPlayChannel.h"
 
 AudioPlayChannel::AudioPlayChannel(int id, JavaCallHelper *javaCallHelper,
-                                   AVCodecContext *codecContext) : BasePlayChannel(id, javaCallHelper, codecContext) {
+                                   AVCodecContext *codecContext, AVRational time_base) : BasePlayChannel(id, javaCallHelper, codecContext, time_base) {
         out_channels = av_get_channel_layout_nb_channels(AV_CH_LAYOUT_STEREO);
         out_samplesize = av_get_bytes_per_sample(AV_SAMPLE_FMT_S16);//16位， 两个字节
         out_sample_rate = 44100;
@@ -140,7 +140,7 @@ void AudioPlayChannel::initOpenSL() {
 
     //5.设置播放状态
     (*bqPlayerInterface)->SetPlayState(bqPlayerInterface, SL_PLAYSTATE_PLAYING);
-    //6.启动回调函数
+    //6.启动回调函数,会触发系统不停回调该函数
     bqPlayerCallback(bqPlayerBufferQueue, this);
     LOGE("-----手动调用播放 packet:%d", this->pkt_queue.size());
 }
@@ -200,6 +200,7 @@ int AudioPlayChannel::getPcm() {
                 AV_ROUND_UP);
         int nb = swr_convert(swrContext, &buffer, dst_nb_samples, (const uint8_t **)frame->data, frame->nb_samples);//返回采样位数
         data_size = nb * out_channels * out_samplesize;//转换后实际数据大小
+        clock = frame->pts * av_q2d(time_base);//设置音频的同步时间，用于音视频同步
         break;
     }
     releaseAvFrame(frame);

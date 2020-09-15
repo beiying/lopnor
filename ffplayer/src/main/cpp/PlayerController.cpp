@@ -60,6 +60,7 @@ void PlayerController::prepareFFmpeg() {
     for (int i = 0; i < formatContext->nb_streams; i++) {
         AVCodecParameters *codecParameters = formatContext->streams[i]->codecpar;
         AVCodec *dec = avcodec_find_decoder(codecParameters->codec_id);
+        AVStream *stream = formatContext->streams[i];
         if (!dec) {//找不到解码器
             javaCallHelper->onError(THREAD_CHILD, FFMPEG_FIND_DECODER_FAIL);
             return;
@@ -85,10 +86,15 @@ void PlayerController::prepareFFmpeg() {
 
         if (codecParameters->codec_type == AVMEDIA_TYPE_AUDIO) {
             audioPlayChannel = new AudioPlayChannel(i, javaCallHelper,
-                                                    codecContext);
+                                                    codecContext, stream->time_base);
         } else if (codecParameters->codec_type == AVMEDIA_TYPE_VIDEO) {
-            videoPlayChannel = new VideoPlayChannel(i, javaCallHelper, codecContext);
+            AVRational frame_rate = stream->r_frame_rate;
+            int fps = av_q2d(frame_rate);
+
+            videoPlayChannel = new VideoPlayChannel(i, javaCallHelper, codecContext, stream->time_base);
             videoPlayChannel->setRenderFrame(renderFrame);
+            videoPlayChannel->setFps(fps);
+
         }
 
     }
@@ -97,6 +103,9 @@ void PlayerController::prepareFFmpeg() {
         javaCallHelper->onError(THREAD_CHILD, FFMPEG_NOMEDIA);
         return;
     }
+
+    videoPlayChannel->audioPlayChannel = audioPlayChannel;
+
     javaCallHelper->onPrepare(THREAD_CHILD);
     return;
 }

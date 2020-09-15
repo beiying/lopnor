@@ -5,11 +5,34 @@
 
 #include "VideoPlayChannel.h"
 
+void dropPacket(queue<AVPacket *> &q) {
+    while(!q.empty()) {
+        LOGE("丢弃视频-------");
+        AVPacket *packet = q.front();
+        if (packet->flags != AV_PKT_FLAG_KEY) {
+            q.pop();
+            BasePlayChannel::releasePacket(packet);
+        } else {
+            continue;
+        }
+    }
+}
 
-VideoPlayChannel::VideoPlayChannel(int id, JavaCallHelper *callHelper, AVCodecContext *context)
-        : BasePlayChannel(id, callHelper, context) {
+void dropFrame(queue<AVFrame *> &q) {
+    while(!q.empty()) {
+        LOGE("丢弃视频帧数据-------");
+        AVFrame *frame = q.front();
+        q.pop();
+        BasePlayChannel::releaseAvFrame(frame);
+    }
+}
+
+VideoPlayChannel::VideoPlayChannel(int id, JavaCallHelper *callHelper, AVCodecContext *context, AVRational time_base)
+        : BasePlayChannel(id, callHelper, context, time_base) {
     this->javaCallHelper = callHelper;
     this->codecContext = context;
+    frame_queue.setReleaseHandle(releaseAvFrame);
+    frame_queue.setSyncHandle(dropFrame);
 }
 
 VideoPlayChannel::~VideoPlayChannel() {
@@ -93,7 +116,29 @@ void VideoPlayChannel::playContent() {
         //渲染回调
         renderFrame(dst_data[0], dst_linesize[0],codecContext->width, codecContext->height);
         LOGE("解码一帧视频 %d", frame_queue.size());
-        av_usleep(16 * 1000);
+
+        clock = frame->pts * av_q2d(time_base);//视频的同步时间，需要跟音频的同步时间对比
+        double extra_delay = frame->repeat_pict / (2 * fps);//视频的画面的显示要考虑解码时间，通过repeate_pict计算额外的解码时间
+        double frame_delay = 1.0 / fps; //根据视频的帧率计算帧与帧之间的间隔时间
+        double delay = extra_delay + frame_delay;//计算出每一帧之间真正的间隔时间，需要考虑解码时间
+        double audioClock = audioPlayChannel->clock;//单位都是毫秒
+        double diffClock = clock - audioClock;
+        LOGE("--------相差--------- %d", diffClock);
+        //TODO，这里的音视频同步有待研究
+        if (clock > audioClock) {//视频播放超前了，帧与帧之间间隔时间适当延长
+            if (diffClock > 1) {//如果视频过于超前，延迟时间更长
+                av_usleep((delay * 2) * 1000);
+            } else {
+                av_usleep((delay + diffClock) * 1000);
+            }
+        } else {//视频延后， 音频超前
+            if (diffClock > 1) {//视频落后比较多
+                //不延迟，直接继续播放下一帧
+            } else if (diffClock >= 0.05) {//视频落后不算太多，采取丢帧的操作
+                releaseAvFrame(frame);
+                frame_queue.sync();
+            }
+        }
         releaseAvFrame(frame);
     }
     av_freep(&dst_data[0]);
@@ -105,5 +150,9 @@ void VideoPlayChannel::playContent() {
 
 void VideoPlayChannel::setRenderFrame(RenderFrame renderFrame) {
     this->renderFrame = renderFrame;
+}
+
+void VideoPlayChannel::setFps(int fps) {
+    this->fps = fps;
 }
 

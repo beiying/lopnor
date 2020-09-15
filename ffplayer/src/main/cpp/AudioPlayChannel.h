@@ -13,7 +13,7 @@
 class AudioPlayChannel:public BasePlayChannel {
 public:
     AudioPlayChannel(int id, JavaCallHelper *javaCallHelper,
-                     AVCodecContext *codecContext);
+                     AVCodecContext *codecContext, AVRational time_base);
     ~AudioPlayChannel();
 
     virtual void startPlay();
