@@ -1,4 +1,4 @@
-package com.beiying.media.opengl
+package com.beiying.ffplayer.beauty
 
 import android.content.Context
 import android.opengl.GLES20
@@ -22,8 +22,12 @@ import android.opengl.GLES20
  * */
 class ShaderHelper {
     companion object {
+        fun loadProgram(vertexShader: String, fragmentShader: String): Int {
+            return linkProgram(compileVertexShader(vertexShader), compileFragmentShader(fragmentShader))
+        }
+
         fun compileVertexShader(shaderCode: String): Int {
-            return compileShader(GLES20.GL_VERTEX_SHADER, shaderCode)
+            return compileFragmentShader(shaderCode)
         }
 
         fun compileFragmentShader(shaderCode: String): Int {

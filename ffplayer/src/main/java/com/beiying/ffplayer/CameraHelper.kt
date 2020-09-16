@@ -2,6 +2,7 @@ package com.beiying.ffplayer
 
 import android.app.Activity
 import android.graphics.ImageFormat
+import android.graphics.SurfaceTexture
 import android.hardware.Camera
 import android.util.Log
 import android.view.Surface
@@ -19,7 +20,12 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
     private lateinit var previewCallback: Camera.PreviewCallback
     private var rotation: Int = 0
     private lateinit var onChangedSizeListener: OnChangedSizeListener
+    private lateinit var surfaceTexture: SurfaceTexture
 
+    companion object {
+        val WIDTH: Int = 640
+        val HEIGHT: Int = 480
+    }
     fun switchCamera() {
         if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
             cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT
@@ -28,17 +34,6 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
         }
         stopPreview()
         startPreView()
-    }
-
-    /**
-     * 释放摄像头
-     * */
-    private fun stopPreview() {
-        camera?.let {
-            it.setPreviewCallback(null)
-            it.stopPreview()
-            it.release()
-        }
     }
 
     /**
@@ -52,6 +47,7 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
             //设置预览数据格式为nv21
             parameters.previewFormat = ImageFormat.NV21
             //设置摄像头宽高
+//            parameters.setPreviewSize(WIDTH, HEIGHT)
             setPreviewSize(parameters)
             //设置预览图像角度和方向，并没有改变摄像头采集图像的角度和方向，编码时还需要将采集的数据进行旋转
             setPreviewOrientation(parameters)
@@ -64,10 +60,22 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
             camera.addCallbackBuffer(buffer)
             camera.setPreviewCallbackWithBuffer(this)
             //设置预览画面
+//            camera.setPreviewTexture(surfaceTexture)
             camera.setPreviewDisplay(surfaceHolder)
             camera.startPreview()
         } catch(e: Exception){
             e.printStackTrace()
+        }
+    }
+
+    /**
+     * 释放摄像头
+     * */
+    private fun stopPreview() {
+        camera?.let {
+            it.setPreviewCallback(null)
+            it.stopPreview()
+            it.release()
         }
     }
 
