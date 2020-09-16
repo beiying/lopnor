@@ -35,6 +35,13 @@
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:gravity="center"
+            android:onClick="stopVideo"
+            android:text="停止播放"/>
+
+    <Button
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
             android:onClick="startLive"
             android:text="开始推流"/>
 

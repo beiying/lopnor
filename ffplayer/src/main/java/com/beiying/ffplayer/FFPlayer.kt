@@ -15,12 +15,16 @@ class FFPlayer : SurfaceHolder.Callback{
             System.loadLibrary("avplayer")
         }
     }
-    external fun prepare(dataSource: String)
-    external fun startPlay()
-    external fun setSurface(surface: Any?)
+    private external fun prepare(dataSource: String)
+    private external fun startPlay()
+    private external fun setSurface(surface: Any?)
 
     external fun sound(audioPath: String, outputPath: String)
-    external fun playVideo(videoPath: String, surface: Any?)
+    private external fun playVideo(videoPath: String, surface: Any?)
+    private external fun getVideoDuration(): Int
+    private external fun playerSeekTo(progress: Int)
+    private external fun stopPlay()
+    private external fun releasePlayer()
 
 
     private var controllerCallback: IControllerCallback? = null
@@ -46,6 +50,18 @@ class FFPlayer : SurfaceHolder.Callback{
         this.playerEvent = playerEvent
     }
 
+    fun getDuration(): Int {
+        return getVideoDuration()
+    }
+
+    fun seekTo(progress: Int) {//拖动比较耗时，在子线程进行
+        Thread {
+            run {
+                playerSeekTo(progress)
+            }
+        }.start()
+    }
+
     override fun surfaceChanged(surfaceHolder: SurfaceHolder, format: Int, width: Int, height: Int) {
         this.surfaceHolder = surfaceHolder
     }
@@ -64,6 +80,19 @@ class FFPlayer : SurfaceHolder.Callback{
 
     fun play(videoPath: String) {
         playVideo(videoPath, surfaceHolder?.surface)
+    }
+
+    fun start() {
+        startPlay()
+    }
+
+    fun stop() {
+        stopPlay()
+    }
+
+    fun release() {
+        surfaceHolder?.removeCallback(this)
+        releasePlayer()
     }
 
     fun onPrepared() {//native层准备工作完成后会调用

@@ -3,6 +3,7 @@
 //
 
 #include "AudioPlayChannel.h"
+#include "macro.h"
 
 AudioPlayChannel::AudioPlayChannel(int id, JavaCallHelper *javaCallHelper,
                                    AVCodecContext *codecContext, AVRational time_base) : BasePlayChannel(id, javaCallHelper, codecContext, time_base) {
@@ -13,7 +14,8 @@ AudioPlayChannel::AudioPlayChannel(int id, JavaCallHelper *javaCallHelper,
 }
 
 AudioPlayChannel::~AudioPlayChannel() {
-
+    free(buffer);
+    buffer = 0;
 }
 
 void *audioPlay(void *args) {
@@ -47,7 +49,7 @@ void AudioPlayChannel::startPlay() {
 }
 
 void AudioPlayChannel::stopPlay() {
-
+    isPlaying = 0;
 }
 
 //向音频播放器的缓冲去队列中存入解码出来的pcm数据
@@ -202,6 +204,10 @@ int AudioPlayChannel::getPcm() {
         data_size = nb * out_channels * out_samplesize;//转换后实际数据大小
         clock = frame->pts * av_q2d(time_base);//设置音频的同步时间，用于音视频同步
         break;
+    }
+    //由于是以音频为准进行音视频同步，所以音频的播放时间才是播放进度
+    if (javaCallHelper) {
+        javaCallHelper->onProgress(THREAD_CHILD, clock);
     }
     releaseAvFrame(frame);
     return data_size;

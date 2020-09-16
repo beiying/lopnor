@@ -20,6 +20,8 @@ class MainActivity: AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     private lateinit var livePusher: LivePusher
 
     var videoProgress: Int = 0
+    var isTouch: Boolean = false
+    var isSeek: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +36,7 @@ class MainActivity: AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         player.setSurfaceView(surfaceView)
         player.setControllerCallback(object: FFPlayer.IControllerCallback {
             override fun onPrepare() {
-                player.startPlay()
+                player.start()
             }
 
             override fun onError(errorCode: Int) {
@@ -44,7 +46,18 @@ class MainActivity: AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         })
         player.setPlayerEvent(object: FFPlayer.PlayerEvent {
             override fun onProgress(progress: Int) {
-                TODO("Not yet implemented")
+                if (!isTouch) {
+                    runOnUiThread {
+                        val duration  = player.getDuration()
+                        if (duration != 0) {
+                            if (isSeek) {
+                                isSeek = false;
+                                return@runOnUiThread
+                            }
+                            seekBar.progress = progress / duration * 100
+                        }
+                    }
+                }
             }
 
         })
@@ -90,6 +103,10 @@ class MainActivity: AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
     }
 
+    fun stopVideo(view: View) {
+
+    }
+
     fun startLive(view: View) {
         livePusher.startLive("rtmp://47.101.155.208/myapp")
     }
@@ -97,16 +114,19 @@ class MainActivity: AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
     }
 
-    override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-        TODO("Not yet implemented")
+    override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
     }
 
-    override fun onStartTrackingTouch(seekBar: SeekBar?) {
-        TODO("Not yet implemented")
+    override fun onStartTrackingTouch(seekBar: SeekBar) {
+        isTouch = true
     }
 
-    override fun onStopTrackingTouch(seekBar: SeekBar?) {
-        TODO("Not yet implemented")
+    override fun onStopTrackingTouch(seekBar: SeekBar) {
+        isTouch = false
+        isSeek = true
+        videoProgress = player.getDuration() * seekBar.progress / 100
+        player.seekTo(videoProgress)
     }
+
 
 }

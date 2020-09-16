@@ -2,6 +2,8 @@
 // Created by beiying on 2020/9/13.
 //
 
+#define DELETE(obj) if(obj) {delete obj;obj = 0;}
+
 #ifndef LOPNOR_MACRO_H
 #define LOPNOR_MACRO_H
 #define THREAD_MAIN 1

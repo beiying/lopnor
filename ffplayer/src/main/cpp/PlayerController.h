@@ -41,9 +41,18 @@ public:
     void decode();
     void setRenderCallback(RenderFrame renderFrame);
 
-private:
+    int duration;
+
+    int getDuration();
+
+    void seekTo(int progress);
+
+    void stopPlay();
+
+
     pthread_t pid_prepare;
     pthread_t pid_play;
+    pthread_t pid_stop;//释放线程
     char* url;
     AVFormatContext *formatContext;
     JavaCallHelper *javaCallHelper;
@@ -51,8 +60,11 @@ private:
     AudioPlayChannel *audioPlayChannel;
 
     bool isPlaying = false;
+    int isSeek = 0;
 
     RenderFrame renderFrame;
+
+    pthread_mutex_t seekMutex;//由于seek操作是在子线程执行的，需要加锁同步
 };
 
 

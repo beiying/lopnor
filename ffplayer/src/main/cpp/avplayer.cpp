@@ -59,6 +59,7 @@ ANativeWindow *window;
 JavaCallHelper *javaCallHelper;
 
 static SLObjectItf  engineSL = NULL;//引擎对象
+pthread_mutex_t windowMutex = PTHREAD_MUTEX_INITIALIZER;
 
 //确保时间计量单位的分母不出现0的情况
 static double r2d(AVRational r) {
@@ -97,12 +98,18 @@ jclass findClass(JNIEnv* env, const char* name) {
 }
 //渲染回调
 void renderFrame(uint8_t *data, int linesize, int w, int h) {
+    pthread_mutex_lock(&windowMutex);
+    if (!window) {
+        pthread_mutex_unlock(&windowMutex);
+        return;
+    }
     //设置渲染窗口属性
     ANativeWindow_setBuffersGeometry(window, w, h, WINDOW_FORMAT_RGBA_8888);
     ANativeWindow_Buffer windowBuffer;//图像渲染缓冲区，将视频数据拷贝到图像缓冲区即可完成图像渲染
     if (ANativeWindow_lock(window, &windowBuffer, 0)) {
         ANativeWindow_release(window);
         window = 0;
+        pthread_mutex_unlock(&windowMutex);
         return;
     }
     //一行一行的拷贝数据，如果整体的一帧一帧拷贝，可能出现由于屏幕宽高与视频原始数据宽高不一致导致显示时错乱
@@ -113,6 +120,7 @@ void renderFrame(uint8_t *data, int linesize, int w, int h) {
         memcpy(window_data + i * window_linesize, src_data + i * linesize, window_linesize);
     }
     ANativeWindow_unlockAndPost(window);
+    pthread_mutex_unlock(&windowMutex);
 }
 
 //static struct sigaction old_signalhandlers[NSIG];
@@ -406,7 +414,35 @@ JNIEXPORT void JNICALL startPlay(JNIEnv *env, jobject context) {
     }
 }
 
+JNIEXPORT void JNICALL stopPlay(JNIEnv *env, jobject context) {
+    if (controller) {
+        controller->stopPlay();
+    }
+    if (javaCallHelper) {
+        delete javaCallHelper;
+        javaCallHelper = 0;
+    }
+}
 
+JNIEXPORT void JNICALL releasePlayer(JNIEnv *env, jobject context) {
+    if (window) {
+        ANativeWindow_release(window);
+        window = 0;
+    }
+}
+
+JNIEXPORT int JNICALL getVideoDuration(JNIEnv *env, jobject context) {
+    if (controller) {
+        return controller->getDuration();
+    }
+    return 0;
+}
+
+JNIEXPORT void JNICALL playerSeekTo(JNIEnv *env, jobject context, jint progress) {
+    if (controller) {
+        controller->seekTo(progress);
+    }
+}
 
 static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *gMethods, int numMethods) {
     jclass clazz;
@@ -426,9 +462,13 @@ static int registerNativeMethods(JNIEnv *env, const char *className, JNINativeMe
 static JNINativeMethod jni_Methods_table[] = {
         {"prepare", "(Ljava/lang/String;)V", (void *) prepare},
         {"startPlay", "()V", (void *) startPlay},
+        {"stopPlay", "()V", (void *) stopPlay},
+        {"releasePlayer", "()V", (void *) releasePlayer},
         {"setSurface", "(Ljava/lang/Object;)V", (void *) setSurface},
         {"playVideo", "(Ljava/lang/String;Ljava/lang/Object;)V", (void *) playVideo},
-        {"sound", "(Ljava/lang/String;Ljava/lang/String;)V", (void *) sound}
+        {"sound", "(Ljava/lang/String;Ljava/lang/String;)V", (void *) sound},
+        {"getVideoDuration", "()I", (void *) getVideoDuration},
+        {"playerSeekTo", "(I)V", (void *)playerSeekTo}
         //        {"urlProtocolInfo", "(V;)Ljava/lang/String;", (void *) urlProtocolInfo},
 //        {"avFormatInfo", "(V;)Ljava/lang/String;", (void *) avFormatInfo},
 //        {"avCodecInfo", "(V;)Ljava/lang/String;", (void *) avCodecInfo},

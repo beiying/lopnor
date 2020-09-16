@@ -39,5 +39,15 @@ void JavaCallHelper::onError(int thread, int errorCode) {
 }
 
 void JavaCallHelper::onProgress(int thread, int progress) {
-
+    if (thread == THREAD_CHILD) {
+        JNIEnv *jniEnv;//子线程的JNIEnv
+        //子线程要绑定JavaVM获取对应的JNIEnv
+        if (javaVM->AttachCurrentThread(&env,0) != JNI_OK) {
+            return;
+        }
+        jniEnv->CallVoidMethod(obj, jmid_progress, progress);
+        javaVM->DetachCurrentThread();
+    } else if (thread == THREAD_MAIN) {
+        env->CallVoidMethod(obj, jmid_progress, progress);
+    }
 }

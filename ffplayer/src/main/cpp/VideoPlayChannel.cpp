@@ -61,7 +61,7 @@ void VideoPlayChannel::startPlay() {
 }
 
 void VideoPlayChannel::stopPlay() {
-
+    isPlaying = false;
 }
 
 //解码线程执行过程

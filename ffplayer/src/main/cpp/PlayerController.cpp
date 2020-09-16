@@ -21,10 +21,14 @@ PlayerController::PlayerController(JavaCallHelper *callHelper, const char *dataS
     this->javaCallHelper = callHelper;
     url = new char[strlen(dataSource) + 1];
     strcpy(url, dataSource);
+    duration = 0;
+    pthread_mutex_init(&seekMutex, 0);
 }
 
 PlayerController::~PlayerController() {
-
+    pthread_mutex_destroy(&seekMutex);
+    javaCallHelper = 0;
+    DELETE(url);
 }
 
 
@@ -57,6 +61,7 @@ void PlayerController::prepareFFmpeg() {
         return;
     }
 
+    duration = formatContext->duration / 1000000;
     for (int i = 0; i < formatContext->nb_streams; i++) {
         AVCodecParameters *codecParameters = formatContext->streams[i]->codecpar;
         AVCodec *dec = avcodec_find_decoder(codecParameters->codec_id);
@@ -154,11 +159,73 @@ void PlayerController::decode() {
             break;
         }
     }
-    isPlaying = 0;
+    isPlaying = false;
     audioPlayChannel->stopPlay();
     videoPlayChannel->stopPlay();
 }
 
 void PlayerController::setRenderCallback(RenderFrame renderFrame) {
     this->renderFrame = renderFrame;
+}
+
+int PlayerController::getDuration() {
+    return duration;
+}
+//拖动进度的时候，为了避免出现播放了一段时间才跳到指定进度播放，要在拖动进度后清空之前的音视频缓冲区
+void PlayerController::seekTo(int progress) {
+    if (progress < 0 || progress >= duration) {
+        return;
+    }
+    if (!formatContext) {
+        return;
+    }
+    pthread_mutex_lock(&seekMutex);
+
+    isSeek = 1;
+    int ret = av_seek_frame(formatContext, -1, progress, AVSEEK_FLAG_BACKWARD);
+
+    //拖动后清空缓存
+    if (audioPlayChannel) {
+        audioPlayChannel->stopWork();
+        audioPlayChannel->clearPlayerBuffer();
+        audioPlayChannel->startWork();
+    }
+
+    if (videoPlayChannel) {
+        videoPlayChannel->stopWork();
+        videoPlayChannel->clearPlayerBuffer();
+        videoPlayChannel->startWork();
+    }
+    isSeek = 0;
+    pthread_mutex_unlock(&seekMutex);
+}
+
+//子线程尽心
+void *async_stop(void *args) {
+    PlayerController *controller = static_cast<PlayerController *>(args);
+    pthread_join(controller->pid_prepare, 0);
+    controller->isPlaying = 0;
+    pthread_join(controller->pid_play, 0);
+    DELETE(controller->audioPlayChannel);
+    DELETE(controller->videoPlayChannel);
+    if (controller->formatContext) {
+        avformat_close_input(&controller->formatContext);
+        avformat_free_context(controller->formatContext);
+        controller->formatContext = NULL;
+    }
+    DELETE(controller);
+    LOGE("释放");
+    return 0;
+}
+
+void PlayerController::stopPlay() {
+    javaCallHelper = 0;
+    if (audioPlayChannel) {
+        audioPlayChannel->javaCallHelper = 0;
+    }
+    if (videoPlayChannel) {
+        videoPlayChannel->javaCallHelper = 0;
+    }
+    isPlaying = false;
+    pthread_create(&pid_stop, 0, async_stop, this);
 }
