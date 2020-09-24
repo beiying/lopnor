@@ -25,13 +25,13 @@ class CameraHelperWithTexture(var cameraId: Int) :
             cameraId = Camera.CameraInfo.CAMERA_FACING_BACK
         }
         stopPreview()
-        startPreView()
+        startPreview()
     }
 
     /**
      * 开启摄像头
      * */
-    private fun startPreView() {
+    fun startPreview() {
         try {
             //获取camera对象
             camera = Camera.open(cameraId)
@@ -48,6 +48,34 @@ class CameraHelperWithTexture(var cameraId: Int) :
             //数据缓存区
             camera.addCallbackBuffer(buffer)
             camera.setPreviewCallbackWithBuffer(this)
+            //设置预览画面
+            camera.setPreviewTexture(surfaceTexture)
+            camera.startPreview()
+        } catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    /**
+     * 开启摄像头
+     * */
+    fun startPreview(surfaceTexture: SurfaceTexture) {
+        try {
+            //获取camera对象
+            camera = Camera.open(cameraId)
+            val parameters: Camera.Parameters = camera.parameters
+            //设置预览数据格式为nv21
+            parameters.previewFormat = ImageFormat.NV21
+            //设置摄像头宽高
+            parameters.setPreviewSize(WIDTH, HEIGHT)
+
+            camera.parameters = parameters
+            buffer = ByteArray(WIDTH * HEIGHT * 3 / 2)
+            bytes = ByteArray(buffer.size)
+
+            //数据缓存区
+            camera.addCallbackBuffer(buffer)
+//            camera.setPreviewCallbackWithBuffer(this)
             //设置预览画面
             camera.setPreviewTexture(surfaceTexture)
             camera.startPreview()

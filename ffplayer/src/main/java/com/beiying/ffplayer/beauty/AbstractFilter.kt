@@ -5,7 +5,6 @@ import android.opengl.GLES20
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.nio.FloatBuffer
-import javax.microedition.khronos.opengles.GL
 
 /**
  * 滤镜的抽象类，实现了：
@@ -14,7 +13,7 @@ import javax.microedition.khronos.opengles.GL
  * */
 abstract class AbstractFilter(context: Context, val vertexShaderId: Int, val fragmentShaderId: Int) {
     lateinit var textureBuffer: FloatBuffer //片元着色器的顶点坐标缓冲区
-    private lateinit var vertexBuffer: FloatBuffer //顶点着色器的顶点坐标缓冲区
+    lateinit var vertexBuffer: FloatBuffer //顶点着色器的顶点坐标缓冲区
     var mProgram: Int = 0
     var vTexture: Int = 0  //纹理Id
     var vMatrix: Int = 0   //
@@ -66,14 +65,20 @@ abstract class AbstractFilter(context: Context, val vertexShaderId: Int, val fra
         vTexture = GLES20.glGetUniformLocation(mProgram, "vTexture")
     }
 
+    open fun onSurfaceReady(width: Int, height: Int) {
+        this.mWidth = width
+        this.mHeight = height
+    }
+
     //绘制摄像头采集的数据
-    fun onDrawFrame(textureId: Int): Int{
+    open fun onDrawFrame(textureId: Int): Int{
         //设置显示窗口
         GLES20.glViewport(0, 0, mWidth, mHeight)
 
         //使用着色器
         GLES20.glUseProgram(mProgram)
         //将Java层的顶点坐标绑定到顶点着色器程序中的坐标变量,并激活对应的变量
+        vertexBuffer.position(0)
         GLES20.glVertexAttribPointer(vPosition, 2, GLES20.GL_FLOAT, false, 0, vertexBuffer)
         GLES20.glEnableVertexAttribArray(vPosition)
 
