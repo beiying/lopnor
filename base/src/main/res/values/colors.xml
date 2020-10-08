@@ -10,4 +10,6 @@
     <color name="loading_error_text">#666</color>
     <color name="loading_empty_text">#666</color>
     <color name="loading_reload_btn_text">#2196F3</color>
+
+    <color name="tv_load_more">#999999</color>
 </resources>
