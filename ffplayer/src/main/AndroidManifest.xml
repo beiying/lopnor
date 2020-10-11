@@ -4,7 +4,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-sdk android:minSdkVersion="16" tools:overrideLibrary="jp.wasabeef.glide.transformations"/>
+    <uses-sdk tools:overrideLibrary="jp.wasabeef.glide.transformations"/>
     <application android:name=".MyApplication"
             android:allowBackup="true"
             android:supportsRtl="true"

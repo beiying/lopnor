@@ -20,3 +20,16 @@ add_library(turbojpeg
 set_target_properties(turbojpeg
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/armeabi-v7a/libturbojpeg.so)
+
+add_library(
+        jpegcompress
+        SHARED
+        src/main/cpp/jpeg_compress.cpp
+)
+
+target_link_libraries(
+        jpegcompress
+        jpeg
+        turbojpeg
+        ${log-lib}
+)
