@@ -48,7 +48,7 @@ abstract class BaseAdapter<T>(private val activity: Activity, private var list: 
     /**
      * 没有数据时的View,上拉加载更多的View
      */
-    private var emptyView: View? = null,
+    private var emptyView: View? = null
 
     /**
      * 没有数据时的View,上拉加载更多的View
@@ -354,7 +354,7 @@ abstract class BaseAdapter<T>(private val activity: Activity, private var list: 
                 LayoutInflater.from(activity).inflate(getLayoutViewId(viewType), viewGroup, false)
             }
         }
-        val viewHolder = BaseViewHolder(view)
+        val viewHolder = BaseViewHolder(view!!)
 
         //视图被创建的时候调用
         viewCreated(viewHolder, viewType)
@@ -426,16 +426,14 @@ abstract class BaseAdapter<T>(private val activity: Activity, private var list: 
                     for (integer in childId!!) {
                         if (null != holder.getView(integer)) {
                             if (null != iOnChildClickListener) {
-                                holder.getView(integer)
-                                    .setOnClickListener(object : View.OnClickListener {
+                                holder.getView<View>(integer)?.setOnClickListener(object : View.OnClickListener {
                                         override fun onClick(v: View) {
                                             iOnChildClickListener?.onClick(v, dataPosition)
                                         }
                                     })
                             }
                             if (null != iOnChildClickListener && isListenerChildLongClick) {
-                                holder.getView(integer)
-                                    .setOnLongClickListener(object : View.OnLongClickListener {
+                                holder.getView<View>(integer)?.setOnLongClickListener(object : View.OnLongClickListener {
                                         override fun onLongClick(v: View): Boolean {
                                             iOnChildLongClickListener?.onClick(v, dataPosition)
                                             return false
