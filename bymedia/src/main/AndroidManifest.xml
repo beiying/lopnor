@@ -9,19 +9,23 @@
     <supports-gl-texture android:name="GL_OES_compressed_ETC1_RGB8_texture" />
     <supports-gl-texture android:name="GL_OES_compressed_paletted_texture" />
 
-    <uses-sdk tools:overrideLibrary="jp.wasabeef.glide.transformations"/>
+    <uses-sdk tools:overrideLibrary="jp.wasabeef.glide.transformations" />
     <application
             android:name=".MediaApplication"
             android:allowBackup="true"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-            <activity android:name=".opengl.GraphActivity"
-                    android:theme="@style/AppTheme.NoActionBar">
-                <intent-filter>
-                    <action android:name="android.intent.action.MAIN"/>
+        <activity
+                android:name=".MainActivity"
+                android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+                android:name=".opengl.GraphActivity"
+                android:theme="@style/AppTheme.NoActionBar"></activity>
 
-                    <category android:name="android.intent.category.LAUNCHER"/>
-                </intent-filter>
-            </activity>
     </application>
 </manifest>

@@ -21,6 +21,7 @@ set_target_properties(turbojpeg
         PROPERTIES IMPORTED_LOCATION
         ${distribution_DIR}/armeabi-v7a/libturbojpeg.so)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 add_library(
         jpegcompress
         SHARED
@@ -29,6 +30,7 @@ add_library(
 
 target_link_libraries(
         jpegcompress
+        android
         jpeg
         turbojpeg
         ${log-lib}
