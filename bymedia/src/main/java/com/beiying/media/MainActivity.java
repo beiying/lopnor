@@ -4,7 +4,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.beiying.media.image.BitImageView;
+import com.beiying.media.image.BigImageView;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
 
         try {
             InputStream inputStream = getAssets().open("long.png");
-            ((BitImageView)(findViewById(R.id.big_view))).setImage(inputStream);
+            ((BigImageView)(findViewById(R.id.big_view))).setImage(inputStream);
         } catch (IOException e) {
             e.printStackTrace();
         }

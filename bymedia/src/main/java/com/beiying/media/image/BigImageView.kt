@@ -11,9 +11,10 @@ import android.view.View
 import android.widget.Scroller
 import java.io.InputStream
 import java.lang.Exception
+import kotlin.math.min
 import kotlin.math.roundToInt
 
-class BitImageView : View, GestureDetector.OnGestureListener, View.OnTouchListener,
+class BigImageView : View, GestureDetector.OnGestureListener, View.OnTouchListener,
     GestureDetector.OnDoubleTapListener {
     lateinit var showRect: Rect
     lateinit var options: BitmapFactory.Options
@@ -77,11 +78,16 @@ class BitImageView : View, GestureDetector.OnGestureListener, View.OnTouchListen
         //根据视图宽高确定加载图片的区域
         showRect.left = 0
         showRect.top = 0
-        showRect.right = imageWidth
+        showRect.right = Math.min(imageWidth, viewWidth)
+        showRect.bottom = Math.min(imageHeight, viewHeight)
+        Log.e("liuyu", "onDraw viewWith: $viewWidth, rectWidth:$imageWidth")
 
-        //根据view的宽度计算图片的缩放因子
-        showScale = viewWidth / imageWidth.toFloat()
-        showRect.bottom = (viewHeight / showScale).roundToInt()
+//        //根据view的宽度计算图片的缩放因子
+//        showScale = viewWidth / imageWidth.toFloat()
+//        showRect.bottom = (viewHeight / showScale).roundToInt()
+        Log.e("liuyu", "onMeasure right:${showRect.right}, bottom: ${showRect.bottom}")
+        originalScale = viewWidth / imageWidth.toFloat()
+        showScale = originalScale
     }
 
     //第四步：绘制
@@ -90,7 +96,8 @@ class BitImageView : View, GestureDetector.OnGestureListener, View.OnTouchListen
         //复用Bitmap内存，即将解码的Bitmap尺寸必须小于复用的Bitmap尺寸
         options.inBitmap = bitmap
         bitmap = bitmapDecoder?.decodeRegion(showRect, options)
-        scaleMatrix.setScale(showScale, showScale)
+        Log.e("liuyu", "onDraw viewWith: $viewWidth, rectWidth:${viewWidth / showRect.width().toFloat()}}")
+        scaleMatrix.setScale(viewWidth / showRect.width().toFloat(), viewWidth / showRect.width().toFloat())
         bitmap?.let { canvas.drawBitmap(it, scaleMatrix, null) }
     }
 
@@ -129,7 +136,8 @@ class BitImageView : View, GestureDetector.OnGestureListener, View.OnTouchListen
         distanceY: Float
     ): Boolean {
         Log.e("liuyu", "onScroll Y= $distanceY")
-        showRect.offset(distanceX.toInt()   , distanceY.toInt())
+        showRect.offset(distanceX.toInt(), distanceY.toInt())
+        Log.e("liuyu", "before onScroll left= ${showRect.left}, right=${showRect.right}, width=${showRect.width()}")
         //处理临界状态，即顶部和底部
         if (showRect.bottom > imageHeight) {
             showRect.bottom = imageHeight
@@ -147,6 +155,7 @@ class BitImageView : View, GestureDetector.OnGestureListener, View.OnTouchListen
             showRect.left = 0
             showRect.right = (viewWidth / showScale).toInt()
         }
+        Log.e("liuyu", "after onScroll left= ${showRect.left}, right=${showRect.right}, width=${showRect.width()}")
         invalidate()
         return false
     }
@@ -173,8 +182,8 @@ class BitImageView : View, GestureDetector.OnGestureListener, View.OnTouchListen
         if(scroller.isFinished) return
         if (scroller.computeScrollOffset()) {
             Log.e("liuyu", "computeScroll Y= ${scroller.currY}")
-            showRect.left = scroller.currX
-            showRect.right = showRect.left + (viewWidth / showScale).toInt()
+//            showRect.left = scroller.currX
+//            showRect.right = showRect.left + (viewWidth / showScale).toInt()
             showRect.top = scroller.currY
             showRect.bottom = showRect.top + (viewHeight / showScale).toInt()
             invalidate()

@@ -2,7 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent" android:layout_height="match_parent">
-    <com.beiying.media.image.BitImageView
+    <com.beiying.media.image.BigImageView
             android:id="@+id/big_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>

@@ -33,5 +33,6 @@ target_link_libraries(
         android
         jpeg
         turbojpeg
+        jnigraphics
         ${log-lib}
 )
