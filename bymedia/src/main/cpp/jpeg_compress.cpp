@@ -18,7 +18,7 @@ static jobject classLoader;
 
 
 //压缩图片到文件中
-private void write_jpeg_file(uint8_t* data,  int w, int h, int quality, const char *path) {
+void write_jpeg_file(uint8_t* data,  int w, int h, int quality, const char *path) {
     //创建JPEG压缩对象
     jpeg_compress_struct  jcs;
     //创建设置回调
@@ -85,7 +85,7 @@ JNIEXPORT void JNICALL turboCompress(JNIEnv *env, jobject context, jobject _bitm
             pixels+=4;
         }
     }
-    write_jpeg_file(temp, w, h, _quality, "path");
+    write_jpeg_file(temp, w, h, _quality, NULL);
     AndroidBitmap_unlockPixels(env, _bitmap);
     free(data);
 

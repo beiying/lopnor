@@ -34,6 +34,7 @@ android {
             } else {
                 manifest.srcFile "src/main/AndroidManifest.xml"
             }
+            jniLibs.srcDirs = ["libs"]
         }
     }
 
@@ -47,12 +48,6 @@ android {
     externalNativeBuild {
         cmake {
             path 'CMakeLists.txt'
-        }
-    }
-
-    sourceSets {
-        main {
-            jniLibs.srcDirs = ["libs"]
         }
     }
 
