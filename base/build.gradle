@@ -19,8 +19,11 @@ android {
         externalNativeBuild {
             cmake {
                 cppFlags "-frtti -fexceptions"
-                abiFilters "armeabi-v7a"
+                abiFilters 'armeabi-v7a'
             }
+        }
+        ndk {
+            abiFilters 'armeabi-v7a'
         }
 
     }
@@ -63,6 +66,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
+    api project(":ai")
     api androidDependencies.recyclerView
 
     api globalDependencies.constraintLayout

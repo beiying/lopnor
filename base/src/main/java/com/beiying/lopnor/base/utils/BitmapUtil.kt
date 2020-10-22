@@ -1,9 +1,6 @@
 package com.beiying.lopnor.base.utils
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Canvas
-import android.graphics.Rect
+import android.graphics.*
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
@@ -53,6 +50,21 @@ class BitmapUtil {
             }
             result.compress(Bitmap.CompressFormat.JPEG, quality, baos)
             return result
+        }
+
+        fun tranformGray(src: Bitmap): Bitmap {
+            val dst: Bitmap = Bitmap.createBitmap(src.width, src.height, src.config)
+            val canvas: Canvas = Canvas(dst)
+            val paint:Paint = Paint()
+            paint.isDither = true
+            paint.isAntiAlias = true
+
+            val colorMatrix: ColorMatrix = ColorMatrix()
+            colorMatrix.setSaturation(0f)
+            paint.colorFilter = ColorMatrixColorFilter(colorMatrix)
+
+            canvas.drawBitmap(src, 0f,0f, paint)
+            return dst;
         }
     }
 }

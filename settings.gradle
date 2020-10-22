@@ -1,3 +1,5 @@
+include ':ai'
+include ':core'
 include ':apm-plugin'
 include ':apm'
 include ':ffplayer'
