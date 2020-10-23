@@ -12,7 +12,7 @@ add_library(opencv
         IMPORTED)
 set_target_properties(opencv
         PROPERTIES IMPORTED_LOCATION
-        ${distribution_DIR}/armeabi-v7a/libopencv_java3.so)
+        ${distribution_DIR}/armeabi-v7a/libopencv_java4.so)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 if (CMAKE_COMPILER_IS_GNUCXX)

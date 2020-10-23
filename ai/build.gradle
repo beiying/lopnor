@@ -18,6 +18,7 @@ android {
             cmake {
                 cppFlags "-frtti -fexceptions"
                 abiFilters 'armeabi-v7a'
+                arguments "-DANDROID_TOOLCHAIN=clang", "-DANDROID_STL=c++_shared"
             }
         }
         ndk {
