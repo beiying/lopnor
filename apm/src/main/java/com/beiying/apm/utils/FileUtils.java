@@ -13,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 
 /**
@@ -109,6 +110,40 @@ public class FileUtils {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static void copyToSdCardFromAssets(Context context, String fileName) {
+        File output = new File(fileName);
+        File file = new File(Environment.getExternalStorageDirectory(), output.getName());
+        if (file.exists()) {
+            return;
+        }
+        FileOutputStream fos = null;
+        InputStream inputStream = null;
+        try {
+            fos = new FileOutputStream(file);
+            inputStream = context.getAssets().open(fileName);
+            int len;
+            byte[] buffer = new byte[2048];
+            while((len = inputStream.read(buffer)) != -1) {
+                fos.write(buffer);
+            }
+            fos.close();
+            inputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fos != null) {
+                    fos.close();
+                }
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 

@@ -25,8 +25,25 @@ add_library(
         src/main/cpp/opencv/imageutil.cpp
 )
 
+add_library(
+        videoutil
+        SHARED
+        src/main/cpp/opencv/videoutil.cpp
+        src/main/cpp/opencv/CascadeDetectorAdapter.h
+        src/main/cpp/opencv/CascadeDetectorAdapter.cpp
+
+)
+
 target_link_libraries(
         imageutil
+        android
+        opencv
+        jnigraphics
+        ${log-lib}
+)
+
+target_link_libraries(
+        videoutil
         android
         opencv
         jnigraphics

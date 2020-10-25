@@ -21,6 +21,7 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
     private var rotation: Int = 0
     private lateinit var onChangedSizeListener: OnChangedSizeListener
     private lateinit var surfaceTexture: SurfaceTexture
+    private var shouldRotate: Boolean = true
 
     companion object {
         val WIDTH: Int = 640
@@ -60,8 +61,34 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
             camera.addCallbackBuffer(buffer)
             camera.setPreviewCallbackWithBuffer(this)
             //设置预览画面
-//            camera.setPreviewTexture(surfaceTexture)
+            //设置预览画面
             camera.setPreviewDisplay(surfaceHolder)
+            camera.startPreview()
+        } catch(e: Exception){
+            e.printStackTrace()
+        }
+    }
+
+    fun startBackgroundPreview() {
+        try {
+            //交给native层处理旋转
+            shouldRotate = false
+            //获取camera对象
+            camera = Camera.open(cameraId)
+            val parameters: Camera.Parameters = camera.parameters
+            //设置预览数据格式为nv21
+            parameters.previewFormat = ImageFormat.NV21
+            //设置摄像头宽高
+            parameters.setPreviewSize(WIDTH, HEIGHT)
+            camera.parameters = parameters
+
+            buffer = ByteArray(WIDTH * HEIGHT * 3 / 2)
+            //数据缓存区
+            camera.addCallbackBuffer(buffer)
+            camera.setPreviewCallbackWithBuffer(this)
+            //设置预览画面
+            surfaceTexture = SurfaceTexture(11)
+            camera.setPreviewTexture(surfaceTexture)
             camera.startPreview()
         } catch(e: Exception){
             e.printStackTrace()
@@ -71,7 +98,7 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
     /**
      * 释放摄像头
      * */
-    private fun stopPreview() {
+    fun stopPreview() {
         camera?.let {
             it.setPreviewCallback(null)
             it.stopPreview()
@@ -160,24 +187,61 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
         startPreView()
     }
 
-    override fun onPreviewFrame(data: ByteArray?, camera: Camera) {
-        when(rotation) {
-            Surface.ROTATION_0 -> {
-                rotation90(data)
-            }
-            Surface.ROTATION_90 -> {//横屏，左边是头部（home键在右边）
+    override fun onPreviewFrame(data: ByteArray, camera: Camera) {
+        if(shouldRotate) {
+            when(rotation) {
+                Surface.ROTATION_0 -> {
+                    rotation90(data)
+                }
+                Surface.ROTATION_90 -> {//横屏，左边是头部（home键在右边）
 
-            }
-            Surface.ROTATION_270 -> {//横屏，头部在右边
+                }
+                Surface.ROTATION_270 -> {//横屏，头部在右边
 
+                }
             }
         }
-        previewCallback.onPreviewFrame(bytes, camera)
+        previewCallback.onPreviewFrame(data, camera)
         camera.addCallbackBuffer(buffer)
     }
 
-    private fun rotation90(data: ByteArray?) {
+    private fun rotation90(data: ByteArray) {
+        var index: Int = 0
+        val ySize: Int = width * height
+        val uvHeight: Int = height / 2
+        //后置摄像头顺时针旋转90度
+        if (cameraId == Camera.CameraInfo.CAMERA_FACING_BACK) {
+            for (i in 0 until width) {
+                for(j in (height - 1)..0) {
+                    data[index++] = data[width * j + i]
+                }
+            }
+            for (i in 0 until width step 2) {
+                for(j in (height - 1)..0) {
+                    //u
+                    data[index++] = data[ySize + width * j + i]
+                    //v
+                    data[index++] = data[ySize + width * j + i + 1]
+                }
+            }
+        } else {
+            for (i in 0 until width) {
+                var mPos: Int = width - 1
+                for(j in 0 until height) {
+                    data[index++] = data[width * j + i]
+                    mPos += width
+                }
+            }
 
+            for (i in 0 until width step 2) {
+                var mPos: Int = ySize + width - 1
+                for(j in 0 until height) {
+                    data[index++] = data[mPos - i - 1]
+                    data[index++] = data[mPos - i]
+                    mPos += width
+                }
+            }
+        }
     }
 
     fun setOnChangedSizeListener(listener: OnChangedSizeListener) {
