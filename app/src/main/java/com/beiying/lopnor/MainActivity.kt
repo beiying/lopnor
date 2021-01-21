@@ -1,9 +1,13 @@
 package com.beiying.lopnor
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.beiying.lopnor.demo.ActivityA
+import com.beiying.lopnor.demo.ActivityC
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 
@@ -17,6 +21,11 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                 .setAction("Action", null).show()
+        }
+
+        findViewById<TextView>(R.id.hello_world).setOnClickListener {
+
+            startActivity(Intent(this@MainActivity, ActivityC::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
         }
 
     }

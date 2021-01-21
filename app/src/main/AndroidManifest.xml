@@ -22,10 +22,16 @@
                 android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="com.beiying.lopnor.action.Main"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </activity>
+        <activity android:name=".demo.ActivityA"/>
+        <activity android:name=".demo.ActivityB"/>
+        <activity android:name=".demo.ActivityC"/>
     </application>
 
 </manifest>
