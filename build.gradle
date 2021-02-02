@@ -86,5 +86,6 @@ ext {
             glide_transform : "jp.wasabeef:glide-transformations:4.3.0",
             gpuimage: "jp.co.cyberagent.android:gpuimage:2.1.0",
             rxpermissions: "com.github.tbruyelle:rxpermissions:0.12",
+            gson: "com.google.code.gson:gson:2.8.6"
     ]
 }
