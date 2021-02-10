@@ -3,7 +3,7 @@ package com.beiying.lopnor.base.ui.tab
 import android.view.ViewGroup
 
 interface IByTabLayout<Tab : ViewGroup, D> {
-    fun findTab(data: D): Tab
+    fun findTab(data: D): Tab?
 
     fun addOnTabSelectedListener(listener: OnTabSelectedListener<D>)
 
