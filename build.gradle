@@ -86,7 +86,9 @@ ext {
             glide_transform : "jp.wasabeef:glide-transformations:4.3.0",
             gpuimage: "jp.co.cyberagent.android:gpuimage:2.1.0",
             rxpermissions: "com.github.tbruyelle:rxpermissions:0.12",
-            autoservice: "com.google.auto.service:auto-service:1.0-rc6"
+            autoservice: "com.google.auto.service:auto-service:1.0-rc6",
+
+            fastjson: "com.alibaba:fastjson:1.2.59",
             gson: "com.google.code.gson:gson:2.8.6"
     ]
 }
