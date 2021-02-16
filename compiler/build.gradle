@@ -1,0 +1,17 @@
+import javax.lang.model.SourceVersion
+
+apply plugin: 'java-library'
+apply plugin: 'kotlin'
+
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation project(":annotations")
+    implementation globalDependencies.fastjson
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation globalDependencies.autoservice
+    annotationProcessor globalDependencies.autoservice
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8

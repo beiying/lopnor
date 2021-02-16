@@ -77,4 +77,5 @@ dependencies {
     api globalDependencies.rxpermissions
     api globalDependencies.rxjava2
     api globalDependencies.rxjava3
+    api globalDependencies.fastjson
 }
