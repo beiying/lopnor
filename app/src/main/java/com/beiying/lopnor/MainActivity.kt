@@ -8,8 +8,10 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.beiying.lopnor.demo.ActivityA
 import com.beiying.lopnor.demo.ActivityC
+import com.beiying.lopnor.demo.navigation.NavigationActivity
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
+import org.w3c.dom.Text
 
 class MainActivity : AppCompatActivity() {
 
@@ -26,6 +28,9 @@ class MainActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.hello_world).setOnClickListener {
 
             startActivity(Intent(this@MainActivity, ActivityC::class.java).setFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+        findViewById<TextView>(R.id.navigation_demo).setOnClickListener {
+            startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
         }
 
     }
