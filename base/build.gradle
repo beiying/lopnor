@@ -69,6 +69,8 @@ dependencies {
 
     api project(":ai")
     api androidDependencies.recyclerView
+    api androidDependencies.coroutines_core
+    api androidDependencies.coroutines_android
 
     api globalDependencies.constraintLayout
     api globalDependencies.okhttp3

@@ -1,0 +1,62 @@
+package com.beiying.lopnor.demo.concurrent
+
+import android.util.Log
+import kotlinx.coroutines.*
+
+class CoroutinesDemo {
+
+    fun startScene() {
+        val job: Job = GlobalScope.launch(Dispatchers.Main) {
+            Log.e("liuyu", "coroutines running")
+            val result1 = request1()
+            val result2 = request2(result1)
+            val result3 = request3(result2)
+
+            updateUI(result3)
+        }
+        Log.e("liuyu","coroutines launched")
+//        val deffered: Deferred = GlobalScope.async(Dispatchers.IO)
+    }
+
+    fun startScene1() {
+        val job: Job = GlobalScope.launch {
+            Log.e("liuyu", "corountines is running")
+            val result = request1()
+            val deffered1 = GlobalScope.async { request2(result) }
+            val deffered2 = GlobalScope.async { request3(result) }
+
+            updateUI(deffered1.await(), deffered2.await())
+        }
+    }
+
+    private fun updateUI(result: String) {
+        Log.e("liuyu", "update work on ${Thread.currentThread().name}")
+    }
+
+    private fun updateUI(result: String, result2: String) {
+        Log.e("liuyu", "update async work on ${Thread.currentThread().name}")
+    }
+
+    suspend fun request1(): String {
+        delay(2 * 1000)
+
+        Log.e("liuyu", "request1 work on ${Thread.currentThread().name}")
+        return "result from request1"
+    }
+
+    suspend fun request2(result: String): String {
+        delay(2 * 1000)
+
+        Log.e("liuyu", "request1 work on ${Thread.currentThread().name}")
+        return "result from request2"
+    }
+
+    suspend fun request3(result: String): String {
+        delay(2 * 1000)
+
+        Log.e("liuyu", "request1 work on ${Thread.currentThread().name}")
+        return "result from request3"
+    }
+
+
+}
