@@ -68,11 +68,17 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     api project(":ai")
+    api androidDependencies.view_model
+    api androidDependencies.live_data
+    api androidDependencies.lifecycles
     api androidDependencies.recyclerView
     api androidDependencies.coroutines_core
     api androidDependencies.coroutines_android
 
     api globalDependencies.constraintLayout
+    api globalDependencies.retrofit
+    api globalDependencies.logging_interceptor
+    api globalDependencies.converter_gson
     api globalDependencies.okhttp3
     api globalDependencies.okio
 //    api globalDependencies.aspectjrt

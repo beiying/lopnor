@@ -39,6 +39,7 @@
         <activity android:name=".demo.ActivityA" />
         <activity android:name=".demo.ActivityB" />
         <activity android:name=".demo.ActivityC" />
+        <activity android:name=".demo.concurrent.CoroutinesActivity"/>
     </application>
 
 </manifest>

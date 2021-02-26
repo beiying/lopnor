@@ -54,6 +54,7 @@ ext {
     globalMinSdkVersion = 16
 
     supportLibraryVersion = "28.0.0"
+    lifecycle_version = "2.2.0"
 
     /*=================================常用的引用============================================*/
     //supportLibVersion 的头数字是和targetSdkVersion 版本一样的。
@@ -62,11 +63,13 @@ ext {
             design        : "com.android.support:design:${supportLibraryVersion}",
             support_v4    : "com.android.support:support-v4:${supportLibraryVersion}",
             recyclerView : "com.android.support:recyclerview-v7:${supportLibraryVersion}",
-            coroutines_core: "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1",
-            coroutines_android: "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1",
+            coroutines_core: "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2",
+            coroutines_android: "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1",
+            view_model: "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
+            live_data: "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version",
+            lifecycles: "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+            ]
 
-
-    ]
 
     /*=================================module中公共用到的引用============================================*/
     globalDependencies = [
@@ -82,6 +85,7 @@ ext {
             okhttp3: "com.squareup.okhttp3:okhttp:3.14.7",
             okhttp4: "com.squareup.okhttp3:okhttp:4.7.2",
             okio: "com.squareup.okio:okio:1.17.5",
+            logging_interceptor: "com.squareup.okhttp3:logging-interceptor:4.2.0",
             release_chunker: "com.github.chuckerteam.chucker:library:3.2.0",
             debug_chunker: "com.github.chuckerteam.chucker:library-no-op:3.2.0",
             //glide的引用
@@ -92,6 +96,7 @@ ext {
             rxpermissions: "com.github.tbruyelle:rxpermissions:0.12",
             autoservice: "com.google.auto.service:auto-service:1.0-rc6",
 
+            converter_gson: "com.squareup.retrofit2:converter-gson:2.9.0",
             fastjson: "com.alibaba:fastjson:1.2.59"
     ]
 }
