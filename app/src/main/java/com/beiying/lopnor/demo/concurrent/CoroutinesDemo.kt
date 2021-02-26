@@ -1,8 +1,15 @@
 package com.beiying.lopnor.demo.concurrent
 
+import android.content.res.AssetManager
 import android.util.Log
 import kotlinx.coroutines.*
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.lang.StringBuilder
 
+/**
+ * 协程demo
+ * */
 class CoroutinesDemo {
 
     fun startScene() {
@@ -28,6 +35,13 @@ class CoroutinesDemo {
             updateUI(deffered1.await(), deffered2.await())
         }
     }
+
+    fun startScene2(assetManager: AssetManager) {
+        GlobalScope.launch {
+            val content: String = parseAssetFile(assetManager, "")
+        }
+    }
+
 
     private fun updateUI(result: String) {
         Log.e("liuyu", "update work on ${Thread.currentThread().name}")
@@ -56,6 +70,25 @@ class CoroutinesDemo {
 
         Log.e("liuyu", "request1 work on ${Thread.currentThread().name}")
         return "result from request3"
+    }
+
+    suspend fun parseAssetFile(assetManager: AssetManager, fileName: String): String {
+        return suspendCancellableCoroutine { continuation ->
+            Thread(Runnable {
+                val inputStream = assetManager.open(fileName)
+                val bufferReader = BufferedReader(InputStreamReader(inputStream))
+                var line: String
+                val stringBuilder: StringBuilder = StringBuilder()
+                do {
+                    line = bufferReader.readLine()
+                    if (line != null) stringBuilder.append(line) else break
+                } while (line != null)
+                inputStream.close()
+                bufferReader.close()
+
+                continuation.resumeWith(Result.success(stringBuilder.toString()))
+            }).start()
+        }
     }
 
 
