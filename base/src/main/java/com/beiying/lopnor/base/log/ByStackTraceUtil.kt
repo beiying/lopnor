@@ -8,6 +8,11 @@ class ByStackTraceUtil {
             return cropStackTrace(getRealStackTrace(callStack, ignorPkg), maxDepth)
         }
 
+        fun collectDeviceInfo(throwable: Throwable): String {
+            val sb = StringBuffer()
+            return sb.toString()
+        }
+
         /**
          * 堆栈信息裁剪
          * （堆栈信息很大一部分是系统调用栈，对我们分析问题并没有实际帮助，为了减少日志数据，可以裁减掉无用的log）
