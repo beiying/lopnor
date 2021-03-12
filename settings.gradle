@@ -7,3 +7,40 @@ include ':apm-plugin'
 include ':apm'
 include ':ffplayer'
 include ':app', ':base', ':bymedia'
+
+//以下代码用于监听项目构建生命周期阶段回调
+gradle.buildStarted {
+    println("项目构建开始")
+}
+
+gradle.projectsLoaded {
+    println "从setting.gradle解析完成参与构建的所有项目"
+}
+
+gradle.beforeProject { proj ->
+    println "${proj.name} build.gradle解析之前"
+}
+
+gradle.afterProject { proj ->
+    println "${proj.name} build.gradle解析完成"
+}
+
+gradle.projectsEvaluated {
+    println "所有项目的build.gradle解析配置完成"
+}
+
+gradle.getTaskGraph().addTaskExecutionListener(new TaskExecutionListener() {
+    @Override
+    void beforeExecute(Task task) {
+        println("任务执行：start" + task.name)
+    }
+
+    @Override
+    void afterExecute(Task task, TaskState state) {
+        println("任务执行：end" + task.name)
+    }
+})
+
+gradle.buildFinished {
+    println "项目构建结束..."
+}

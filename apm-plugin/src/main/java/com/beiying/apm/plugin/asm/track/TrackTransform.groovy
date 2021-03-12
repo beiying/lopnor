@@ -58,7 +58,7 @@ class TrackTransform extends Transform {
     }
 
     void _transform(Context context, Collection<TransformInput> inputs, TransformOutputProvider outputProvider, boolean isIncremental) throws IOException, TransformException, InterruptedException {
-        if (!incremental) {
+        if (!isIncremental) {//不是增量更新编译则必须删除上一次构建产生的缓存文件
             outputProvider.deleteAll()
         }
 

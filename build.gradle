@@ -38,6 +38,35 @@ task clean(type: Delete) {
 }
 
 
+afterEvaluate {
+    //收集所有project的task集合
+    Map<Project, Set<Task>> allTasks = project.getAllTasks(true)
+    //遍历每一个project的task结合
+    allTasks.entrySet().each { projectTasks ->
+        projectTasks.value.each { task ->
+            println(task.getName())
+            for (Object o : task.getDependsOn()) {
+                println("dependOn-->" + o.toString())
+            }
+            println("-----------------------")
+        }
+    }
+}
+
+//应用于所有子项目，可以配置所有子项目的通用配置，同时可以获取子项目的属性
+subprojects {project ->
+//    android {
+//        compileOptions {
+//            sourceCompatibility = 1.8
+//            targetCompatibility = 1.8
+//        }
+//    }
+    dependencies {
+
+    }
+}
+
+
 //Android Studio统一管理依赖版本号引用配置
 ext {
     //组件化开发配置开关
@@ -67,7 +96,8 @@ ext {
             coroutines_android: "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.1",
             view_model: "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version",
             live_data: "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version",
-            lifecycles: "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+            lifecycles: "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version",
+            viewmodel_savestate: "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
             ]
 
 
