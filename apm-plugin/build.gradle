@@ -1,21 +1,25 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: 'kotlin'
 apply plugin: 'maven'
 apply plugin: 'com.jfrog.bintray'
 
 
 dependencies {
-    repositories {
-        jcenter()
-        mavenCentral()
-        maven { url 'https://maven.google.com' }
-        maven { url 'http://repository.jetbrains.com/utils' }
-        maven { url "https://dl.bintray.com/archinamon/maven" }
-    }
+//    repositories {
+//        jcenter()
+//        mavenCentral()
+//        maven { url 'https://maven.google.com' }
+//        maven { url 'http://repository.jetbrains.com/utils' }
+//        maven { url "https://dl.bintray.com/archinamon/maven" }
+//    }
+    implementation 'com.android.tools.build:gradle:4.1.0'
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('libs/aspectjtools.jar')
-    compileOnly gradleApi()
-    compileOnly 'com.android.tools.build:gradle:3.4.1'
+    implementation gradleApi()
+    implementation localGroovy()
+    implementation project(':javalib-common')
 }
 
 jar {
@@ -29,4 +33,28 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-apply from: "bintray.gradle"
+//解决编译过程中"警告: @param 没有说明"问题
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+}
+
+repositories{
+    jcenter()
+    mavenCentral()
+    mavenLocal()
+}
+
+//发布代码到本地
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: uri('../repo'))//仓库路径，此处是项目目录下的repo文件夹
+        pom.groupId = 'com.beiying.plugin'//groupid自行定义，一般是包名
+        pom.artifactId = 'common'//自行定义
+        pom.version = '1.0.0'//版本名称
+    }
+}
+
+
+//apply from: "bintray.gradle"
