@@ -10,7 +10,7 @@ import java.lang.StringBuilder
 /**
  * 协程demo
  * */
-class CoroutinesDemo {
+class  CoroutinesDemo {
 
     fun startScene() {
         val job: Job = GlobalScope.launch(Dispatchers.Main) {

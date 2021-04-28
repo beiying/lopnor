@@ -50,7 +50,7 @@ class CoroutinesActivity : AppCompatActivity() {
             }.flatMapLatest {
                 getFlowList(it)
             }.catch {
-                Log.e("liuyu", it.message)
+//                Log.e("liuyu", it.message)
             }.onEach {
                 Log.e("liuyu", "输出 $it")
             }.flowOn(Dispatchers.Main)

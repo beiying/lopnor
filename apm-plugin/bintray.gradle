@@ -10,6 +10,9 @@ def issueUrl = "${gitUrl}/issues"
 
 
 
+/**
+ * 发布插件
+ * */
 install {
     repositories {
         mavenInstaller {

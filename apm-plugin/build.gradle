@@ -17,6 +17,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation files('libs/aspectjtools.jar')
+    implementation 'org.javassist:javassist:3.27.0-GA'
     implementation gradleApi()
     implementation localGroovy()
     implementation project(':javalib-common')

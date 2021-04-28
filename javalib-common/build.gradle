@@ -1,0 +1,29 @@
+plugins {
+    id 'java-library'
+    id 'kotlin'
+    id 'maven'
+}
+
+[compileJava, compileTestJava, javadoc]*.options*.encoding = 'UTF-8'
+
+java {
+    sourceCompatibility = rootProject.ext.javaVersion
+    targetCompatibility = rootProject.ext.javaVersion
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'commons-io:commons-io:2.6'
+}
+
+version POM_VERSION
+group POM_GROUP
+
+uploadArchives {
+    repositories.mavenDeployer {
+        repository(url: uri('../repo'))//仓库路径，此处是项目目录下的repo文件夹
+        pom.groupId = POM_GROUP//groupid自行定义，一般是包名
+        pom.artifactId = POM_ARTIFACT_ID//自行定义
+        pom.version = POM_VERSION//版本名称
+    }
+}

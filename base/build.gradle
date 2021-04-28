@@ -1,8 +1,8 @@
-apply plugin: 'com.android.library'
-
-apply plugin: 'kotlin-android'
-
-apply plugin: 'kotlin-android-extensions'
+plugins {
+    id 'com.android.library'
+    id 'kotlin-android'
+    id 'kotlin-android-extensions'
+}
 
 android {
     compileSdkVersion rootProject.ext.globalCompileSdkVersion
@@ -89,4 +89,5 @@ dependencies {
     api globalDependencies.fastjson
     api globalDependencies.retrofit
     api globalDependencies.gson
+    api globalDependencies.tinker
 }

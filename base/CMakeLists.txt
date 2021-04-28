@@ -6,9 +6,9 @@ find_library( # Sets the name of the path variable.
         # you want CMake to locate.
         log)
 ##设置表示ffmpeg依赖库路径的系统变量
-set(distribution_DIR ${CMAKE_SOURCE_DIR}/libs)
+#set(distribution_DIR ${CMAKE_SOURCE_DIR}/libs)
 ##设置依赖库的头文件夹
-include_directories(libs/includes)
+#include_directories(libs/includes)
 
 ##引入crypt中的CMakeLists
 #add_subdirectory(src/main/cpp/crypt)
