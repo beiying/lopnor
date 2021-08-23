@@ -6,6 +6,7 @@ import kotlinx.coroutines.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.StringBuilder
+import kotlin.coroutines.suspendCoroutine
 
 /**
  * 协程demo
@@ -13,7 +14,7 @@ import java.lang.StringBuilder
 class  CoroutinesDemo {
 
     fun startScene() {
-        val job: Job = GlobalScope.launch(Dispatchers.Main) {
+        val job: Job = GlobalScope.launch(Dispatchers.IO) {
             Log.e("liuyu", "coroutines running")
             val result1 = request1()
             val result2 = request2(result1)
@@ -42,6 +43,17 @@ class  CoroutinesDemo {
         }
     }
 
+    fun startScene3() {
+        runBlocking {
+            delay(100)
+            println("world")
+//            launch {
+//                delay(100)
+//                println("world")
+//            }
+        }
+        println("hello")
+    }
 
     private fun updateUI(result: String) {
         Log.e("liuyu", "update work on ${Thread.currentThread().name}")
@@ -73,6 +85,9 @@ class  CoroutinesDemo {
     }
 
     suspend fun parseAssetFile(assetManager: AssetManager, fileName: String): String {
+        suspendCoroutine<String> { continuation ->
+
+        }
         return suspendCancellableCoroutine { continuation ->
             Thread(Runnable {
                 val inputStream = assetManager.open(fileName)
@@ -89,6 +104,24 @@ class  CoroutinesDemo {
                 continuation.resumeWith(Result.success(stringBuilder.toString()))
             }).start()
         }
+    }
+
+    fun main() = runBlocking {
+        doWorld()
+        println("Done")
+    }
+
+    // Concurrently executes both sections
+    suspend fun doWorld() = coroutineScope { // this: CoroutineScope
+        launch {
+            delay(2000L)
+            println("World 2")
+        }
+        launch {
+            delay(1000L)
+            println("World 1")
+        }
+        println("Hello")
     }
 
 

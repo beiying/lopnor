@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.beiying.lopnor.demo.ActivityA
 import com.beiying.lopnor.demo.ActivityC
+import com.beiying.lopnor.demo.ActivityCoroutine
 import com.beiying.lopnor.demo.navigation.NavigationActivity
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
@@ -31,6 +32,10 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<TextView>(R.id.navigation_demo).setOnClickListener {
             startActivity(Intent(this@MainActivity, NavigationActivity::class.java))
+        }
+
+        findViewById<TextView>(R.id.coroutine_demo).setOnClickListener {
+            startActivity(Intent(this@MainActivity, ActivityCoroutine::class.java))
         }
 
     }
