@@ -45,7 +45,6 @@ android {
 
     sourceSets {
         main {
-            jniLibs.srcDirs = ["libs"]
         }
     }
     // For Kotlin projects

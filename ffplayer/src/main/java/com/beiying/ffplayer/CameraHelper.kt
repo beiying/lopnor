@@ -171,18 +171,18 @@ class CameraHelper(val activity: Activity, var cameraId: Int, var width: Int, va
         camera.setDisplayOrientation(result)
     }
 
-    override fun surfaceChanged(holder: SurfaceHolder?, format: Int, width: Int, height: Int) {
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         Log.e("liuyu", "CameraHelper surfaceChanged")
         stopPreview()
         startPreView()
     }
 
-    override fun surfaceDestroyed(holder: SurfaceHolder?) {
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
         Log.e("liuyu", "CameraHelper surfaceDestroyed")
         stopPreview()
     }
 
-    override fun surfaceCreated(holder: SurfaceHolder?) {
+    override fun surfaceCreated(holder: SurfaceHolder) {
         Log.e("liuyu", "CameraHelper surfaceCreated")
         startPreView()
     }
