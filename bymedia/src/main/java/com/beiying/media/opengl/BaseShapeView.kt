@@ -15,15 +15,15 @@ class BaseShapeView(context: Context,  val baseRender: BaseRender) : GLSurfaceVi
         renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
     }
 
-    override fun surfaceCreated(holder: SurfaceHolder?) {
+    override fun surfaceCreated(holder: SurfaceHolder) {
         super.surfaceCreated(holder)
     }
 
-    override fun surfaceChanged(holder: SurfaceHolder?, format: Int, w: Int, h: Int) {
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, w: Int, h: Int) {
         super.surfaceChanged(holder, format, w, h)
     }
 
-    override fun surfaceDestroyed(holder: SurfaceHolder?) {
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
         super.surfaceDestroyed(holder)
         baseRender.onSurfaceDestroyed()
     }

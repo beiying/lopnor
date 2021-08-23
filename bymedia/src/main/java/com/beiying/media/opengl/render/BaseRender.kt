@@ -19,7 +19,7 @@ open class BaseRender(val context: Context) : GLSurfaceView.Renderer {
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         //Surface创建的时候重置画布为黑色
-        GLES20.glClearColor(0f,0f,0f,0f)
+        GLES20.glClearColor(1.0f,1.0f,1.0f,1.0f)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {

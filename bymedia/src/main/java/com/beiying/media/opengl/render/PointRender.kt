@@ -11,7 +11,7 @@ class PointRender(context: Context) : BaseRender(context) {
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
         super.onSurfaceCreated(gl, config)
-        glClearColor(0.0f, 0.0f,0.0f, 0.0f)
+        glClearColor(1.0f, 1.0f,1.0f, 1.0f)
         mPoint = Point(context)
     }
 

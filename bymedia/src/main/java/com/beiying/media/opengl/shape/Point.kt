@@ -12,7 +12,7 @@ import javax.microedition.khronos.opengles.GL10
 class Point(context: Context) : BaseShape(context) {
     var aColorLocation = 0
     var aPositionLocation = 0
-    var pointVertex: FloatArray = floatArrayOf(0f,0f)
+    var pointVertex: FloatArray = floatArrayOf(0f,1.0f)
 
     init {
         mProgram = ShaderHelper.buildPrograme(
@@ -41,14 +41,14 @@ class Point(context: Context) : BaseShape(context) {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
-        GLES20.glViewport(0,0, width, height)
+        glViewport(0,0, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
         //对于uniform类型变量，由于是固定值，所以直接调用glUniform4f方法给其赋值就好了
-        glUniform4f(aColorLocation, 0f, 0f, 1.0f, 1.0f)
+        glUniform4f(aColorLocation, 1.0f, 0f, 0f, 1.0f)
 
-        glDrawArrays(GL_POINTS,0, pointVertex.size / POSITION_COMPONENT_COUNT)
+        glDrawArrays(GL_POINTS,0, 1)
     }
 
     override fun onSurfaceDestroyed() {
@@ -57,7 +57,7 @@ class Point(context: Context) : BaseShape(context) {
     }
 
     companion object {
-        val U_COLOR: String = "u_color"
-        val A_POSITION: String = "a_position"
+        val U_COLOR: String = "u_Color"
+        val A_POSITION: String = "a_Position"
     }
 }

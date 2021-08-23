@@ -93,7 +93,6 @@ class Triangle(context: Context): BaseShape(context) {
     private lateinit var vertexArray4: VertexArray
 
     private lateinit var byteBuffer: ByteBuffer
-    private lateinit var vertexBuffer: FloatBuffer
 
     private var color: FloatArray = floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)
 
@@ -113,9 +112,9 @@ class Triangle(context: Context): BaseShape(context) {
         byteBuffer = ByteBuffer.allocateDirect(position.size).put(position)
         //申请的内存在GPU中的排列顺序
         //byteBuffer.order(ByteOrder.nativeOrder())
-        vertexBuffer = byteBuffer.asFloatBuffer()
-        vertexBuffer.put(triangleVertex) //将顶点坐标通过FloatBuffer传给GPU
-        vertexBuffer.position(0)
+//        vertexBuffer = byteBuffer.asFloatBuffer()
+//        vertexBuffer.put(triangleVertex) //将顶点坐标通过FloatBuffer传给GPU
+//        vertexBuffer.position(0)
 
         byteBuffer.position(0)
         POSITION_COMPONENT_COUNT = 2
@@ -128,15 +127,15 @@ class Triangle(context: Context): BaseShape(context) {
         uMatrixLocation = GLES20.glGetUniformLocation(mProgram, U_MATRIX)
         uProMatrixLocation = GLES20.glGetUniformLocation(mProgram, U_PRO_MATRIX)
 
-        //打开允许对变量读写
-        GLES20.glEnableVertexAttribArray(aPositionLocation)
-        //给顶点变量赋值
-        GLES20.glVertexAttribPointer(aPositionLocation, 3, GLES20.GL_FLOAT, false, 3 * 4, vertexBuffer);
-        //给颜色变量赋值
-        GLES20.glUniform4fv(aColorLocation, 1, color, 0)
-
-        //完成赋值之后关闭允许对变量读写
-        GLES20.glDisableVertexAttribArray(aPositionLocation)
+//        //打开允许对变量读写
+//        GLES20.glEnableVertexAttribArray(aPositionLocation)
+//        //给顶点变量赋值
+//        GLES20.glVertexAttribPointer(aPositionLocation, 3, GLES20.GL_FLOAT, false, 3 * 4, vertexBuffer);
+//        //给颜色变量赋值
+//        GLES20.glUniform4fv(aColorLocation, 1, color, 0)
+//
+//        //完成赋值之后关闭允许对变量读写
+//        GLES20.glDisableVertexAttribArray(aPositionLocation)
 
         vertexArray.setVertexAttribPointer(0, aPositionLocation, POSITION_COMPONENT_COUNT, 0)
 
@@ -153,14 +152,14 @@ class Triangle(context: Context): BaseShape(context) {
         } else {
             Matrix.orthoM(projectionMatrix, 0, -1f, 1f, -aspectRatio, aspectRatio, 0f, 10f)
         }
-        Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, 3f, 120f);
-
-        //设置视角矩阵
-        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f,7f,//摄像机坐标
-                        0f, 0f, 0f,//目标物的中心坐标
-                        0f, 1f, 0f)//相机方向
-        //计算变化矩阵
-        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
+//        Matrix.frustumM(projectionMatrix, 0, -aspectRatio, aspectRatio, -1f, 1f, 3f, 120f);
+//
+//        //设置视角矩阵
+//        Matrix.setLookAtM(viewMatrix, 0, 0f, 0f,7f,//摄像机坐标
+//                        0f, 0f, 0f,//目标物的中心坐标
+//                        0f, 1f, 0f)//相机方向
+//        //计算变化矩阵
+//        Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0)
     }
 
     override fun onSurfaceDestroyed() {

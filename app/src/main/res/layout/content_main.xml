@@ -33,6 +33,28 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="#4a4a4a"/>
+
+        <TextView
+                android:id="@+id/coroutine_demo"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Coroutine Demo"
+                android:gravity="center"/>
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#4a4a4a"/>
+
+        <TextView
+                android:id="@+id/network_test"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:text="Network Test"
+                android:gravity="center"/>
+        <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#4a4a4a"/>
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

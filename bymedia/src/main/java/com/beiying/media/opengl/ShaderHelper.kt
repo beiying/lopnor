@@ -80,8 +80,8 @@ class ShaderHelper {
                 GLES20.glDeleteShader(fragmentShaderId)
                 return 0
             }
-            GLES20.glDeleteShader(vertexShaderId)
-            GLES20.glDeleteShader(fragmentShaderId)
+//            GLES20.glDeleteShader(vertexShaderId)
+//            GLES20.glDeleteShader(fragmentShaderId)
             return programObjectId
         }
 

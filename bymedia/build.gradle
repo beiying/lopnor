@@ -37,7 +37,6 @@ android {
             } else {
                 manifest.srcFile "src/main/AndroidManifest.xml"
             }
-            jniLibs.srcDirs = ["libs"]
         }
     }
 

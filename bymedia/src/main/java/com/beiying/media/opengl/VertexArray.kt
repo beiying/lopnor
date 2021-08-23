@@ -22,6 +22,5 @@ class VertexArray(vertexData: FloatArray) {
         glVertexAttribPointer(attributeLocation, componentCount, GL_FLOAT, false, stride, floatBuffer)
         glEnableVertexAttribArray(attributeLocation)
 
-        floatBuffer.position(0)
     }
 }
