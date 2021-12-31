@@ -12,7 +12,12 @@ import javax.microedition.khronos.opengles.GL10
 class Point(context: Context) : BaseShape(context) {
     var aColorLocation = 0
     var aPositionLocation = 0
-    var pointVertex: FloatArray = floatArrayOf(0f,1.0f)
+    var pointVertex: FloatArray = floatArrayOf(
+        0.1f, 0.1f, 0f,
+        -0.1f, 0.1f, 0f,
+        -0.1f, -0.1f, 0f,
+        0.1f, -0.1f, 0f
+    )
 
     init {
         mProgram = ShaderHelper.buildPrograme(
@@ -22,7 +27,7 @@ class Point(context: Context) : BaseShape(context) {
         )
         glUseProgram(mProgram)
         vertexArray = VertexArray(pointVertex)
-        POSITION_COMPONENT_COUNT = 2
+        POSITION_COMPONENT_COUNT = 3
     }
 
     override fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
@@ -31,6 +36,7 @@ class Point(context: Context) : BaseShape(context) {
         aColorLocation = glGetUniformLocation(mProgram,
             U_COLOR
         )
+        //获取顶点着色器中属性a_Postion的位置
         aPositionLocation = glGetAttribLocation(mProgram,
             A_POSITION
         )
@@ -41,14 +47,13 @@ class Point(context: Context) : BaseShape(context) {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
-        glViewport(0,0, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
         //对于uniform类型变量，由于是固定值，所以直接调用glUniform4f方法给其赋值就好了
         glUniform4f(aColorLocation, 1.0f, 0f, 0f, 1.0f)
 
-        glDrawArrays(GL_POINTS,0, 1)
+        glDrawArrays(GL_POINTS,0, 4)
     }
 
     override fun onSurfaceDestroyed() {

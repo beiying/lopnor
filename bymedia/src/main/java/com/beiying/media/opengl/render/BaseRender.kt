@@ -23,10 +23,11 @@ open class BaseRender(val context: Context) : GLSurfaceView.Renderer {
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
+        GLES20.glViewport(0, 0, width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {
-
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT or GLES20.GL_DEPTH_BUFFER_BIT)
     }
 
     open fun onSurfaceDestroyed() {

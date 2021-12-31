@@ -17,7 +17,6 @@ class PointRender(context: Context) : BaseRender(context) {
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
         super.onSurfaceChanged(gl, width, height)
-        glViewport(0,0,width, height)
     }
 
     override fun onDrawFrame(gl: GL10?) {

@@ -1,4 +1,4 @@
-package com.beiying.media.image;
+package com.beiying.media.image.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;

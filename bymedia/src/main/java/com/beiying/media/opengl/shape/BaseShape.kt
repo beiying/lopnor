@@ -22,7 +22,7 @@ open class BaseShape(val context: Context) {
     var STRIDE: Int = 0
 
     open fun onSurfaceCreated(gl: GL10?, config: EGLConfig?) {
-        glClearColor(1.0f, 1.0f, 1.0f, 1.0f)
+
     }
 
     open fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -30,7 +30,6 @@ open class BaseShape(val context: Context) {
     }
 
     open fun onDrawFrame(gl: GL10?) {
-        glClear(GL_DEPTH_BUFFER_BIT or GL_COLOR_BUFFER_BIT)
     }
 
     open fun onDrawFrame(gl: GL10, mvpMatrix: FloatArray) {

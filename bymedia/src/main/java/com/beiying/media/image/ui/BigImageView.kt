@@ -1,4 +1,4 @@
-package com.beiying.media.image
+package com.beiying.media.image.ui
 
 import android.content.Context
 import android.graphics.*
@@ -11,8 +11,6 @@ import android.view.View
 import android.widget.Scroller
 import java.io.InputStream
 import java.lang.Exception
-import kotlin.math.min
-import kotlin.math.roundToInt
 
 class BigImageView : View, GestureDetector.OnGestureListener, View.OnTouchListener,
     GestureDetector.OnDoubleTapListener {

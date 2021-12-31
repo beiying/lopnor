@@ -11,7 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.beiying.ai.ImageAI;
-import com.beiying.media.image.BigImageView;
+import com.beiying.media.image.ui.BigImageView;
 
 import java.io.File;
 import java.io.FileOutputStream;
