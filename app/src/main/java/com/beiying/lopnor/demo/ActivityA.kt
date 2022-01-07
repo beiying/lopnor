@@ -4,7 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import com.beiying.common.flutter.ByFlutterFragment
+//import com.beiying.common.flutter.ByFlutterFragment
 import com.beiying.lopnor.R
 import okhttp3.OkHttpClient
 import okhttp3.Request

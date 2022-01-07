@@ -46,10 +46,10 @@ gradle.buildFinished {
     println "项目构建结束..."
 }
 
-setBinding(new Binding([gradle:this]))
-evaluate(new File(
-        settingsDir.parentFile,
-        'flutter_hybird/.android/include_flutter.groovy'
-))
-include ':flutter_hybird'
-project(':flutter_hybird').projectDir = new File('../flutter_hybird')
+//setBinding(new Binding([gradle:this]))
+//evaluate(new File(
+//        settingsDir.parentFile,
+//        'flutter_hybird/.android/include_flutter.groovy'
+//))
+//include ':flutter_hybird'
+//project(':flutter_hybird').projectDir = new File('../flutter_hybird')

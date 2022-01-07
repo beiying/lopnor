@@ -19,7 +19,7 @@ class VertexArray(vertexData: FloatArray) {
     fun setVertexAttribPointer(dataOffset: Int, attributeLocation: Int, componentCount: Int, stride: Int) {
         floatBuffer.position(dataOffset)
 
-        glVertexAttribPointer(attributeLocation, componentCount, GL_FLOAT, false, stride, floatBuffer)
+        glVertexAttribPointer(attributeLocation, componentCount, GL_FLOAT, false, 0, floatBuffer)
         glEnableVertexAttribArray(attributeLocation)
 
     }

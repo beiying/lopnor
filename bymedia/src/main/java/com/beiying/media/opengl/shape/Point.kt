@@ -19,6 +19,16 @@ class Point(context: Context) : BaseShape(context) {
         0.1f, -0.1f, 0f
     )
 
+    var rectangleVertex: FloatArray = floatArrayOf(
+        0f, 0f, 0f,
+        0f, 0.5f, 0f,
+        0.75f, 0.5f, 0f,
+        0.75f, 0.5f, 0f,
+        0.75f, 0f, 0f,
+        0f, 0f, 0f
+    )
+    lateinit var rectangleVertexArray: VertexArray
+
     init {
         mProgram = ShaderHelper.buildPrograme(
             context,
@@ -27,6 +37,7 @@ class Point(context: Context) : BaseShape(context) {
         )
         glUseProgram(mProgram)
         vertexArray = VertexArray(pointVertex)
+        rectangleVertexArray = VertexArray(rectangleVertex)
         POSITION_COMPONENT_COUNT = 3
     }
 
@@ -41,8 +52,9 @@ class Point(context: Context) : BaseShape(context) {
             A_POSITION
         )
 
-        ////attribute类型变量，则需要对应顶点数据中的值.通过给POSITION_COMPONENT_COUNT变量赋值，指定每个顶点数据的个数为 2
-        vertexArray.setVertexAttribPointer(0, aPositionLocation, POSITION_COMPONENT_COUNT, 0)
+        ////attribute类型变量，则需要对应顶点数据中的值.通过给POSITION_COMPONENT_COUNT变量赋值，指定每个顶点数据的个数为 3
+//        vertexArray.setVertexAttribPointer(0, aPositionLocation, POSITION_COMPONENT_COUNT, 0)
+        rectangleVertexArray.setVertexAttribPointer(0, aPositionLocation, POSITION_COMPONENT_COUNT, 0)
     }
 
     override fun onSurfaceChanged(gl: GL10?, width: Int, height: Int) {
@@ -53,7 +65,12 @@ class Point(context: Context) : BaseShape(context) {
         //对于uniform类型变量，由于是固定值，所以直接调用glUniform4f方法给其赋值就好了
         glUniform4f(aColorLocation, 1.0f, 0f, 0f, 1.0f)
 
-        glDrawArrays(GL_POINTS,0, 4)
+        glDrawArrays(GL_POINTS,0, 2)
+
+        glLineWidth(6f)
+        glDrawArrays(GL_LINES, 2, 2)
+
+        glDrawArrays(GL_TRIANGLES, 0, 6)
     }
 
     override fun onSurfaceDestroyed() {
