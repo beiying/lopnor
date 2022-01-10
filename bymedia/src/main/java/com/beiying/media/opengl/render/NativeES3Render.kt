@@ -1,4 +1,4 @@
-package com.beiying.media.opengl
+package com.beiying.media.opengl.render
 
 class NativeES3Render {
     companion object {

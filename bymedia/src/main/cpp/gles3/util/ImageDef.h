@@ -26,7 +26,7 @@ struct SizeF {
     float width;
     float height;
     SizeF() {
-        width = height = 0f;
+        width = height = 0.0f;
     }
 };
 
@@ -35,7 +35,7 @@ struct NativeImage{
     int height;
     int format;
     uint8_t *ppPlane[3];
-    NativeIamge() {
+    NativeImage() {
         width = height = format = 0;
         ppPlane[0] = nullptr;
         ppPlane[1] = nullptr;

@@ -4,9 +4,9 @@ message("LIUYU CMake ${CMAKE_SOURCE_DIR}")
 
 include_directories(
         ${CMAKE_CURRENT_SOURCE_DIR}/include
-        sample
-        util
-        render
+        ${CMAKE_CURRENT_SOURCE_DIR}/util
+        ${CMAKE_CURRENT_SOURCE_DIR}/render
+        ${CMAKE_CURRENT_SOURCE_DIR}/sample
 )
 
 find_library(

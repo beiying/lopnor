@@ -2,7 +2,7 @@
 #include "util/LogUtil.h"
 #include <GLRenderContext.h>
 #include <EGLRender.h>
-#define NATIVE_RENDER_CLASS_NAME "com/beiying/media/opengl/NativeES3Render"
+#define NATIVE_RENDER_CLASS_NAME "com/beiying/media/opengl/render/NativeES3Render"
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,8 +83,8 @@ JNIEXPORT void JNICALL native_UpdateTransformMatrix(JNIEnv *env, jobject instanc
 
 
 static JNINativeMethod g_RenderMethods[] = {
-        {"native_Init", "()V", (void *)(native_Init)},
-        {"native_UnInit", "()V", (void *)(native_UnInit)},
+        {"native_Init",                      "()V",       (void *)(native_Init)},
+        {"native_UnInit",                    "()V",       (void *)(native_UnInit)},
         {"native_SetImageData",              "(III[B)V",  (void *)(native_SetImageData)},
         {"native_SetImageDataWithIndex",     "(IIII[B)V", (void *)(native_SetImageDataWithIndex)},
         {"native_SetParamsInt",              "(III)V",    (void *)(native_SetParamsInt)},
@@ -138,4 +138,5 @@ extern "C" jint JNI_OnLoad(JavaVM *jvm, void *p) {
     {
         return JNI_ERR;
     }
+    return JNI_VERSION_1_6;
 }
