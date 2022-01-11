@@ -30,6 +30,7 @@ JNIEXPORT void JNICALL native_OnDrawFrame(JNIEnv *env, jobject instance) {
 
 JNIEXPORT void JNICALL native_SetImageData(JNIEnv *env, jobject instance,
                                            jint format, jint width, jint height, jbyteArray imageData) {
+
     int len = env->GetArrayLength(imageData);
     uint8_t *buf = new uint8_t[len];
     env->GetByteArrayRegion(imageData, 0, len, reinterpret_cast<jbyte *>(buf));
