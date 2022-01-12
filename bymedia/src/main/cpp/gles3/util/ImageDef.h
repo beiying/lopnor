@@ -121,7 +121,7 @@ public:
             case IMAGE_FORMAT_I420:
             case IMAGE_FORMAT_NV21:
             case IMAGE_FORMAT_NV12:
-                memcpy(pSrcImg->ppPlane[0], pDstImg->ppPlane[0], pSrcImg->width * pSrcImg->height * 1.5);
+                memcpy(pDstImg->ppPlane[0], pSrcImg->ppPlane[0], pSrcImg->width * pSrcImg->height * 1.5);
                 break;
             case IMAGE_FORMAT_YUYV:
                 memcpy(pDstImg->ppPlane[0], pSrcImg->ppPlane[0], pSrcImg->width * pSrcImg->height * 2);
