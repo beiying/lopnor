@@ -9,6 +9,7 @@
 #include <TextureMapSample.h>
 #include <NV21TextureMapSample.h>
 #include <TriangleSample.h>
+#include "VaoSample.h"
 
 class GLRenderContext {
     GLRenderContext();

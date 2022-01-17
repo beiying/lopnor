@@ -21,8 +21,7 @@
 
         </activity>
         <activity
-                android:name=".opengl.NativeGraphActivity"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:name=".opengl.NativeGraphActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
