@@ -84,6 +84,7 @@ void VaoSample::Init() {
 }
 
 void VaoSample::InitVbo() {
+    //结构数组的方式存储每个顶点的属性数据，可以顺序方式读取，提高内存访问模式
     GLfloat vertices[4 *(VERTEX_POS_SIZE + VERTEX_COLOR_SIZE )] = {
             -0.5f,  0.5f, 0.0f,       // v0
             1.0f,  0.0f, 0.0f, 1.0f,  // c0
@@ -108,12 +109,16 @@ void VaoSample::InitVao() {
     glBindVertexArray(m_VaoId);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VboIds[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VboIds[1]);
+
+    //指定顶点数组中某个顶点的位置属性
     glEnableVertexAttribArray(VERTEX_POS_INDX);
     glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, (const void*)0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VboIds[1]);
+    //指定顶点数组中某个顶点的颜色属性
     glEnableVertexAttribArray(VERTEX_COLOR_INDX);
     glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, (const void *)(VERTEX_POS_SIZE *sizeof(GLfloat)));
+
 
     glBindVertexArray(GL_NONE);
 }
@@ -134,11 +139,10 @@ void VaoSample::DrawVbo() {
     glEnableVertexAttribArray(VERTEX_POS_INDX);
     glVertexAttribPointer(VERTEX_POS_INDX, VERTEX_POS_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, (const void*)0);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VboIds[1]);
     glEnableVertexAttribArray(VERTEX_COLOR_INDX);
     glVertexAttribPointer(VERTEX_COLOR_INDX, VERTEX_COLOR_SIZE, GL_FLOAT, GL_FALSE, VERTEX_STRIDE, (const void *)(VERTEX_POS_SIZE *sizeof(GLfloat)));
 
-
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_VboIds[1]);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (const void*)0);
 }
 
