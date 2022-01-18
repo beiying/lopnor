@@ -4,12 +4,13 @@
 
 #ifndef LOPNOR_GLRENDERCONTEXT_H
 #define LOPNOR_GLRENDERCONTEXT_H
-#include "stdint.h"
+#include <stdint.h>
 #include <GLES3/gl3.h>
-#include <TextureMapSample.h>
-#include <NV21TextureMapSample.h>
-#include <TriangleSample.h>
+#include "TextureMapSample.h"
+#include "NV21TextureMapSample.h"
+#include "TriangleSample.h"
 #include "VaoSample.h"
+#include "FBOSample.h"
 
 class GLRenderContext {
     GLRenderContext();

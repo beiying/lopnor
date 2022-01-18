@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.beiying.media.R
 import com.beiying.media.opengl.render.GLRender
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE
+import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_FBO
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_TEXTURE_MAP
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_TRIANGLE
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_YUV_TEXTURE_MAP
@@ -79,6 +80,7 @@ class NativeGraphActivity : AppCompatActivity() {
                     SAMPLE_TYPE_TRIANGLE -> {}
                     SAMPLE_TYPE_TEXTURE_MAP -> {loadRGBAImage(R.drawable.texture_map)}
                     SAMPLE_TYPE_YUV_TEXTURE_MAP -> {loadNV21Image()}
+                    SAMPLE_TYPE_FBO -> {loadRGBAImage(R.drawable.java)}
                 }
             }).create()
         dialog.show()

@@ -102,6 +102,9 @@ void GLRenderContext::SetParamsInt(int paramType, int value0, int value1) {
             case SAMPLE_TYPE_KEY_VAO:
                 m_pCurSample = new VaoSample();
                 break;
+            case SAMPLE_TYPE_KEY_FBO:
+                m_pCurSample = new FBOSample();
+                break;
             default:
                 m_pCurSample = nullptr;
                 break;

@@ -22,7 +22,7 @@ void NV21TextureMapSample::LoadImage(NativeImage *pImage) {
         m_RenderImage.width = pImage->width;
         m_RenderImage.height = pImage->height;
         m_RenderImage.format = pImage->format;
-        NativeImageUtil::copyNativeImage(pImage, &m_RenderImage);
+        NativeImageUtil::CopyNativeImage(pImage, &m_RenderImage);
     }
 }
 

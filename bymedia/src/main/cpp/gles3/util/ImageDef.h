@@ -108,7 +108,7 @@ public:
         pImage->ppPlane[2] = nullptr;
     }
 
-    static void copyNativeImage(NativeImage *pSrcImg, NativeImage *pDstImg) {
+    static void CopyNativeImage(NativeImage *pSrcImg, NativeImage *pDstImg) {
         if (pSrcImg == nullptr || pSrcImg->ppPlane[0] == nullptr) return;
 
         if (pSrcImg->format != pDstImg->format

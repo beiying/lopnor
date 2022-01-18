@@ -8,6 +8,7 @@
 #include <GLES3/gl3.h>
 #include <ImageDef.h>
 #include <ByteFlowLock.h>
+#include "GLUtils.h"
 
 //For PI define
 #define MATH_PI 3.1415926535897932384626433832802
