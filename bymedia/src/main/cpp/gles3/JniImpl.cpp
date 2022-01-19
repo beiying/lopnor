@@ -1,8 +1,9 @@
 #include "jni.h"
 #include "util/LogUtil.h"
 #include <GLRenderContext.h>
-#include <EGLRender.h>
+#include "EGLRender.h"
 #define NATIVE_RENDER_CLASS_NAME "com/beiying/media/opengl/render/NativeES3Render"
+#define NATIVE_EGL_RENDER_CLASS_NAME "com/beiying/media/opengl/render/NativeEglRender"
 
 #ifdef __cplusplus
 extern "C" {
@@ -78,6 +79,31 @@ JNIEXPORT void JNICALL native_UpdateTransformMatrix(JNIEnv *env, jobject instanc
     GLRenderContext::GetInstance()->UpdateTransformMatrix(rotateX, rotateY, scaleX, scaleY);
 }
 
+JNIEXPORT void JNICALL native_EglRenderInit(JNIEnv *env, jobject instance) {
+    EGLRender::GetInstance()->Init();
+}
+
+JNIEXPORT void JNICALL native_EglRenderSetImageData(JNIEnv *env, jobject instance, jbyteArray data, jint width, jint height) {
+    int len = env->GetArrayLength(data);
+    uint8_t* buff = new uint8_t[len];
+    env->GetByteArrayRegion(data, 0, len, reinterpret_cast<jbyte*>(buff));
+    EGLRender::GetInstance()->SetImageData(buff, width, height);
+    delete[] buff;
+    env->DeleteLocalRef(data);
+}
+
+JNIEXPORT void JNICALL native_EglRenderSetIntParams(JNIEnv *env, jobject instance, jint paramType, jint value) {
+    EGLRender::GetInstance()->SetIntParams(paramType, value);
+}
+
+JNIEXPORT void JNICALL native_EglRenderDraw(JNIEnv *env, jobject instance) {
+    EGLRender::GetInstance()->Draw();
+}
+
+JNIEXPORT void JNICALL native_EglRenderUnInit(JNIEnv *env, jobject instance) {
+    EGLRender::GetInstance()->UnInit();
+}
+
 #ifdef __cplusplus
 }
 #endif
@@ -95,6 +121,14 @@ static JNINativeMethod g_RenderMethods[] = {
         {"native_OnSurfaceCreated",          "()V",       (void *)(native_OnSurfaceCreated)},
         {"native_OnSurfaceChanged",          "(II)V",     (void *)(native_OnSurfaceChanged)},
         {"native_OnDrawFrame",               "()V",       (void *)(native_OnDrawFrame)},
+};
+
+static JNINativeMethod g_EglBgRenderMethods[] = {
+        {"native_EglRenderInit",                            "()V",           (void *)(native_EglRenderInit)},
+        {"native_EglRenderSetImageData",                    "([BII)V",       (void *)(native_EglRenderSetImageData)},
+        {"native_EglRenderSetIntParams",                    "(II)V",         (void *)(native_EglRenderSetIntParams)},
+        {"native_EglRenderDraw",                            "()V",           (void *)(native_EglRenderDraw)},
+        {"native_EglRenderUnInit",                          "()V",           (void *)(native_EglRenderUnInit)},
 };
 
 static int RegisterNativeMethods(JNIEnv *env, const char *className, JNINativeMethod *methods, int methodNum) {
@@ -135,6 +169,13 @@ extern "C" jint JNI_OnLoad(JavaVM *jvm, void *p) {
     }
     jint regRet = RegisterNativeMethods(env, NATIVE_RENDER_CLASS_NAME, g_RenderMethods,
                                         sizeof(g_RenderMethods) /sizeof(g_RenderMethods[0]));
+    if (regRet != JNI_TRUE)
+    {
+        return JNI_ERR;
+    }
+
+    regRet = RegisterNativeMethods(env, NATIVE_EGL_RENDER_CLASS_NAME, g_EglBgRenderMethods,
+                                   sizeof(g_EglBgRenderMethods) / sizeof(g_EglBgRenderMethods[0]));
     if (regRet != JNI_TRUE)
     {
         return JNI_ERR;

@@ -5,13 +5,14 @@
 #ifndef LOPNOR_EGLRENDER_H
 #define LOPNOR_EGLRENDER_H
 
-#include "stdint.h"
+#include <stdint.h>
 #include <GLES3/gl3.h>
 #include <ImageDef.h>
 #include "EGL/egl.h"
 #include "EGL/eglext.h"
 #include "GLES2/gl2.h"
 #include "GLES2/gl2ext.h"
+#include "GLUtils.h"
 
 #define EGL_FEATURE_NUM 7
 
@@ -23,6 +24,8 @@ public:
     void Init();
 
     int CreateGlesEnv();
+
+    void ReCreateProgram();
 
     //void CreateProgramWithFeedback(const char *vShaderStr, const char *fShaderStr);
 

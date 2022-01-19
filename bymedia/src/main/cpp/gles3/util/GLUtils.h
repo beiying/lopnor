@@ -15,6 +15,11 @@ public:
 
     static void DeleteProgram(GLuint &program);
     static void CheckGLError(const char *pGLOperation);
+
+    //初始化纹理
+    static void GenAndBindTextures(GLuint &textureId);
+
+    static void BindVaoAndVbo(GLuint *vaoIds, GLuint *vboIds, int posLoc, int textureLoc);
 };
 
 

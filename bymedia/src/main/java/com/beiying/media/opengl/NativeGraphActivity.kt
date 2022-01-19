@@ -2,6 +2,7 @@ package com.beiying.media.opengl
 
 import android.app.Dialog
 import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.opengl.GLSurfaceView
@@ -15,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.beiying.media.R
 import com.beiying.media.opengl.render.GLRender
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE
+import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_EGL
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_FBO
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_TEXTURE_MAP
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_TRIANGLE
@@ -81,6 +83,9 @@ class NativeGraphActivity : AppCompatActivity() {
                     SAMPLE_TYPE_TEXTURE_MAP -> {loadRGBAImage(R.drawable.texture_map)}
                     SAMPLE_TYPE_YUV_TEXTURE_MAP -> {loadNV21Image()}
                     SAMPLE_TYPE_FBO -> {loadRGBAImage(R.drawable.java)}
+                    SAMPLE_TYPE_EGL -> {
+                        startActivity(Intent(this@NativeGraphActivity, EGLActivity::class.java))
+                    }
                 }
             }).create()
         dialog.show()

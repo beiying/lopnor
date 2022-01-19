@@ -6,7 +6,6 @@
 #include "GLUtils.h"
 #include "LogUtil.h"
 
-
 GLuint GLUtils::LoadShader(GLenum shaderType, const char *pSource) {
     GLuint shader = 0;
     FUN_BEGIN_TIME("GLUtils::LoadShader")
@@ -95,4 +94,36 @@ void GLUtils::CheckGLError(const char *pGLOperation)
     {
         LOGCATE("GLUtils::CheckGLError GL Operation %s() glError (0x%x)\n", pGLOperation, error);
     }
+}
+
+void GLUtils::GenAndBindTextures(GLuint &textureId) {
+    glGenTextures(1, &textureId);
+    glBindTexture(GL_TEXTURE_2D, textureId);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, GL_NONE);
+}
+
+void GLUtils::BindVaoAndVbo(GLuint *vaoIds, GLuint *vboIds, int posLoc, int textureLoc) {
+    // Generate VAO Ids
+    glGenVertexArrays(1, vaoIds);
+
+    // FBO off screen rendering VAO
+    glBindVertexArray(vaoIds[0]);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
+    glEnableVertexAttribArray(posLoc);
+    glVertexAttribPointer(posLoc, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (const void *)0);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vboIds[1]);
+    glEnableVertexAttribArray(textureLoc);
+    glVertexAttribPointer(textureLoc, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (const void *)0);
+    glBindBuffer(GL_ARRAY_BUFFER, GL_NONE);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[2]);
+    GO_CHECK_GL_ERROR();
+    glBindVertexArray(GL_NONE);
 }
