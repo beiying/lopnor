@@ -38,8 +38,8 @@ class NativeRenderGLSurfaceView(context: Context, val render: GLRender, attribut
 
     var mPreviousY: Float = 0.0f
     var mPreviousX: Float = 0.0f
-    var mXAngle: Int = 0
-    var mYAngle: Int = 0
+    var mXAngle: Int = 0 //绕X轴旋转度数
+    var mYAngle: Int = 0 //绕Y轴旋转度数
     var mLastTouchTime: Long = 0
     val TOUCH_SCALE_FACTOR: Float = 180.0f / 320
     init {
