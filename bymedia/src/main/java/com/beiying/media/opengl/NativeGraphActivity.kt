@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.beiying.media.R
 import com.beiying.media.opengl.render.GLRender
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE
+import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_COORD_SYSTEM
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_EGL
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_FBO
 import com.beiying.media.opengl.render.GLRender.Companion.SAMPLE_TYPE_TEXTURE_MAP
@@ -85,6 +86,9 @@ class NativeGraphActivity : AppCompatActivity() {
                     SAMPLE_TYPE_FBO -> {loadRGBAImage(R.drawable.java)}
                     SAMPLE_TYPE_EGL -> {
                         startActivity(Intent(this@NativeGraphActivity, EGLActivity::class.java))
+                    }
+                    SAMPLE_TYPE_COORD_SYSTEM -> {
+                        loadRGBAImage(R.drawable.board_texture)
                     }
                 }
             }).create()

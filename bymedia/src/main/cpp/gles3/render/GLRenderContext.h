@@ -11,6 +11,7 @@
 #include "TriangleSample.h"
 #include "VaoSample.h"
 #include "FBOSample.h"
+#include "CoordSystemSample.h"
 
 class GLRenderContext {
     GLRenderContext();

@@ -105,6 +105,9 @@ void GLRenderContext::SetParamsInt(int paramType, int value0, int value1) {
             case SAMPLE_TYPE_KEY_FBO:
                 m_pCurSample = new FBOSample();
                 break;
+            case SAMPLE_TYPE_KEY_COORD_SYSTEM:
+                m_pCurSample = new CoordSystemSample();
+                break;
             default:
                 m_pCurSample = nullptr;
                 break;
@@ -114,7 +117,20 @@ void GLRenderContext::SetParamsInt(int paramType, int value0, int value1) {
 }
 
 void GLRenderContext::SetParamsFloat(int paramType, float value0, float value1) {
+    LOGCATE("MyGLRenderContext::SetParamsFloat paramType=%d, value0=%f, value1=%f", paramType, value0, value1);
+    if(m_pCurSample){
+        switch (paramType){
+            case SAMPLE_TYPE_KEY_SET_TOUCH_LOC:
+                m_pCurSample->SetTouchLocation(value0, value1);
+                break;
+            case SAMPLE_TYPE_SET_GRAVITY_XY:
+                m_pCurSample->SetGravityXY(value0, value1);
+                break;
+            default:
+                break;
 
+        }
+    }
 }
 
 void GLRenderContext::SetParamsShortArr(short *const pShortArr, int arrSize) {
@@ -123,5 +139,8 @@ void GLRenderContext::SetParamsShortArr(short *const pShortArr, int arrSize) {
 
 void
 GLRenderContext::UpdateTransformMatrix(float rotateX, float rotateY, float scaleX, float scaleY) {
-
+    LOGCATE("MyGLRenderContext::UpdateTransformMatrix [rotateX, rotateY, scaleX, scaleY] = [%f, %f, %f, %f]", rotateX, rotateY, scaleX, scaleY);
+    if (m_pCurSample){
+        m_pCurSample->UpdateTransformMatrix(rotateX, rotateY, scaleX, scaleY);
+    }
 }

@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.4.1)
 
-message("LIUYU CMake ${CMAKE_SOURCE_DIR}")
-
 include_directories(
+        ${CMAKE_CURRENT_SOURCE_DIR}/../glm
         ${CMAKE_CURRENT_SOURCE_DIR}/include
         ${CMAKE_CURRENT_SOURCE_DIR}/util
         ${CMAKE_CURRENT_SOURCE_DIR}/render

@@ -61,6 +61,7 @@ class GLRender: GLSurfaceView.Renderer {
     }
 
     var nativeRender: NativeES3Render = NativeES3Render()
+    private var mSampleType: Int = 200
 
     fun init() {
         nativeRender.native_Init()
@@ -83,6 +84,9 @@ class GLRender: GLSurfaceView.Renderer {
     }
 
     fun setParamsInt(paramType: Int, value0: Int, value1: Int) {
+        if (paramType == SAMPLE_TYPE) {
+            mSampleType = value0
+        }
         nativeRender.native_SetParamsInt(paramType, value0, value1)
     }
 
@@ -92,5 +96,17 @@ class GLRender: GLSurfaceView.Renderer {
 
     fun setImageDataWithIndex(index: Int, format: Int, width: Int, height: Int, bytes: ByteArray) {
         nativeRender.native_SetImageDataWithIndex(index, format, width, height, bytes)
+    }
+
+    fun getSampleType(): Int {
+        return mSampleType
+    }
+
+    fun updateTransformMatrix(rotateX: Float, rotateY: Float, scaleX: Float, scaleY: Float) {
+        nativeRender.native_UpdateTransformMatrix(rotateX, rotateY, scaleX, scaleY)
+    }
+
+    fun setTouchLoc(x: Float, y: Float) {
+        nativeRender.native_SetParamsFloat(SAMPLE_TYPE_SET_TOUCH_LOC, x, y)
     }
 }
