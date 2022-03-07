@@ -137,7 +137,8 @@ class MatrixTraceInjection : ITraceSwitchListener {
     private fun injectTaskOrTransform(project: Project,
                                       extension: MatrixTraceExtension,
                                       variant: BaseVariant): InjectionMode {
-
+        Log.e(TAG, "minify=${variant.buildType.isMinifyEnabled};isTransformInjectionForced=${extension.isTransformInjectionForced}")
+        Log.e(TAG, "getCodeShrinker=" + (getCodeShrinker(project) == CodeShrinker.R8))
         if (!variant.buildType.isMinifyEnabled
                 || extension.isTransformInjectionForced
                 || getCodeShrinker(project) == CodeShrinker.R8) {

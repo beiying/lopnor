@@ -84,6 +84,7 @@ class MatrixTrace(
 
         /**
          * step 1
+         * 解析mapping 文件记录 混淆前后方法的对应关系 并 替换文件目录
          */
         var start = System.currentTimeMillis()
 
@@ -96,7 +97,9 @@ class MatrixTrace(
         futures.add(executor.submit(ParseMappingTask(
                 mappingCollector, collectedMethodMap, methodId, config)))
 
+        //存放原始 源文件 和 输出 源文件的 对应关系
         val dirInputOutMap = ConcurrentHashMap<File, File>()
+        //存放原始jar文件和 输出jar文件 对应关系
         val jarInputOutMap = ConcurrentHashMap<File, File>()
 
         for (file in classInputs) {
@@ -133,24 +136,29 @@ class MatrixTrace(
         for (future in futures) {
             future.get()
         }
+        // 等待所有线程 运行完毕
         futures.clear()
 
         Log.i(TAG, "[doTransform] Step(1)[Parse]... cost:%sms", System.currentTimeMillis() - start)
 
         /**
          * step 2
+         * 收集需要插桩和不需要插桩的方法记录在 mapping文件中 并 收集类之间的继承关系
          */
         start = System.currentTimeMillis()
         val methodCollector = MethodCollector(executor, mappingCollector, methodId, config, collectedMethodMap)
 
+        //收集需要插桩的方法信息，每个插桩信息封装成TraceMethod对象
         methodCollector.collect(dirInputOutMap.keys, jarInputOutMap.keys)
         Log.i(TAG, "[doTransform] Step(2)[Collection]... cost:%sms", System.currentTimeMillis() - start)
 
         /**
          * step 3
+         * 进行字节码插桩
          */
         start = System.currentTimeMillis()
         val methodTracer = MethodTracer(executor, mappingCollector, config, methodCollector.collectedMethodMap, methodCollector.collectedClassExtendMap)
+        //执行插桩逻辑，在需要插桩方法的入口、出口添加MethodBeat的i/o逻辑
         methodTracer.trace(dirInputOutMap, jarInputOutMap)
         Log.i(TAG, "[doTransform] Step(3)[Trace]... cost:%sms", System.currentTimeMillis() - start)
 
@@ -167,15 +175,21 @@ class MatrixTrace(
         override fun run() {
             val start = System.currentTimeMillis()
 
+            //获取混淆产生的mapping.txt 文件对象(混淆后的 记录混淆后前后关系的文件)
             val mappingFile = File(config.mappingDir, "mapping.txt")
             if (mappingFile.isFile) {
                 val mappingReader = MappingReader(mappingFile)
+                // 解析 mapping.txt 文件 并将解析出来的 数据保存到 MappingCollector中
                 mappingReader.read(mappingCollector)
             }
+            // 解析 黑名单 文件 并保存到 Configuration.blackSet 中
             val size = config.parseBlockFile(mappingCollector)
 
+            // 获取用户配置的 methodMapping 文件（里面包含 用户自定义的需要 插桩的方法）
             val baseMethodMapFile = File(config.baseMethodMapPath)
+            // 解析 用户配置的 methodMapping 文件 并将内容保存在 collectedMethodMap中
             getMethodFromBaseMethod(baseMethodMapFile, collectedMethodMap)
+            //将collectedMethodMap中的原始内容 转换为混淆后的内容 并重新保存到 collectedMethodMap
             retraceMethodMap(mappingCollector, collectedMethodMap)
 
             Log.i(TAG, "[ParseMappingTask#run] cost:%sms, black size:%s, collect %s method from %s",
@@ -281,12 +295,14 @@ class MatrixTrace(
                 }
             }
 
-            if (isIncremental) {
+            if (isIncremental) {//增量更新，只 操作有改动的文件
                 val outChangedFiles = HashMap<File, Status>()
                 for ((changedFileInput, status) in mapOfChangedFiles) {
                     val changedFileInputFullPath = changedFileInput.absolutePath
+                    //增量编译模式下之前的build输出已经重定向到dirOutput；替换成output的目录
                     val changedFileOutput = File(changedFileInputFullPath.replace(inputFullPath, outputFullPath))
                     if (status == Status.ADDED || status == Status.CHANGED) {
+                        //新增、修改的Class文件，此次需要扫描
                         resultOfDirInputToOut[changedFileInput] = changedFileOutput
                     } else if (status == Status.REMOVED) {
                         changedFileOutput.delete()
@@ -298,7 +314,7 @@ class MatrixTrace(
             } else {
                 resultOfDirInputToOut[dirInput] = dirOutput
             }
-
+            Log.e(TAG, "dirInput=${dirInput.absolutePath}----dirOutput=${dirOutput.absolutePath}")
             legacyReplaceFile?.invoke(dirInput, dirOutput)
         }
     }
@@ -350,7 +366,7 @@ class MatrixTrace(
                 } else {
                     resultOfJarInputToOut[jarInput] = jarOutput
                 }
-
+                Log.e(TAG, "jarInput=${jarInput.absolutePath}----jarOutput=${jarOutput.absolutePath}")
             } else {
 
                 // TODO for wechat

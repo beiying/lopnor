@@ -164,12 +164,11 @@ class MatrixTraceTransform(
                 FD_OUTPUTS,
                 "mapping",
                 dirName)
-        Log.e("liuyu", "mamppingout: ${mappingOut}")
         return Configuration.Builder()
-                .setBaseMethodMap(extension.baseMethodMapFile)
-                .setBlockListFile(extension.blackListFile)
-                .setMethodMapFilePath("$mappingOut/methodMapping.txt")
-                .setIgnoreMethodMapFilePath("$mappingOut/ignoreMethodMapping.txt")
+                .setBaseMethodMap(extension.baseMethodMapFile)  //build.gradle 中配置的 baseMethodMapFile ,保存的是 我们指定需要被 插桩的方法
+                .setBlockListFile(extension.blackListFile)//build.gradle 中配置的 blackListFile ，保存的是 不需要插桩的文件
+                .setMethodMapFilePath("$mappingOut/methodMapping.txt")// 记录插桩 methodId 和 method的 关系
+                .setIgnoreMethodMapFilePath("$mappingOut/ignoreMethodMapping.txt")// 记录 没有被 插桩的方法
                 .setMappingPath(mappingOut)
                 .build()
     }

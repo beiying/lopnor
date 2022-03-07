@@ -78,7 +78,9 @@ public class MethodTracer {
 
     public void trace(Map<File, File> srcFolderList, Map<File, File> dependencyJarList) throws ExecutionException, InterruptedException {
         List<Future> futures = new LinkedList<>();
+        //对源文件进行插桩
         traceMethodFromSrc(srcFolderList, futures);
+        //对jar进行插桩
         traceMethodFromJar(dependencyJarList, futures);
         for (Future future : futures) {
             future.get();
@@ -125,7 +127,9 @@ public class MethodTracer {
             InputStream is = null;
             FileOutputStream os = null;
             try {
+                //原始文件全路径
                 final String changedFileInputFullPath = classFile.getAbsolutePath();
+                //插桩后文件
                 final File changedFileOutput = new File(changedFileInputFullPath.replace(input.getAbsolutePath(), output.getAbsolutePath()));
                 if (!changedFileOutput.exists()) {
                     changedFileOutput.getParentFile().mkdirs();
@@ -136,6 +140,7 @@ public class MethodTracer {
                     is = new FileInputStream(classFile);
                     ClassReader classReader = new ClassReader(is);
                     ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+                    // TraceClassAdapter 进行插桩
                     ClassVisitor classVisitor = new TraceClassAdapter(Opcodes.ASM5, classWriter);
                     classReader.accept(classVisitor, ClassReader.EXPAND_FRAMES);
                     is.close();
@@ -145,6 +150,7 @@ public class MethodTracer {
                     } else {
                         os = new FileOutputStream(output);
                     }
+                    //将修改后的内容写入到 插装后的文件中
                     os.write(classWriter.toByteArray());
                     os.close();
                 } else {
@@ -254,8 +260,11 @@ public class MethodTracer {
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             this.className = name;
+            //是否是 activity 或者其 子类
             this.isActivityOrSubClass = isActivityOrSubClass(className, collectedClassExtendMap);
+            //是否需要被插桩
             this.isNeedTrace = MethodCollector.isNeedTrace(configuration, className, mappingCollector);
+            //是否是抽象类、接口
             if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
                 this.isABSClass = true;
             }
@@ -265,6 +274,7 @@ public class MethodTracer {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
+            //抽象类、接口不插桩
             if (isABSClass) {
                 return super.visitMethod(access, name, desc, signature, exceptions);
             } else {
@@ -280,6 +290,7 @@ public class MethodTracer {
 
         @Override
         public void visitEnd() {
+            //如果Activity的子类没有onWindowFocusChange方法，插入一个onWindowFocusChange方法
             if (!hasWindowFocusMethod && isActivityOrSubClass && isNeedTrace) {
                 insertWindowFocusChangeMethod(cv, className);
             }
@@ -309,6 +320,7 @@ public class MethodTracer {
 
         }
 
+        //函数入口处添加 AppMethodBeat.i（）方法
         @Override
         protected void onMethodEnter() {
             TraceMethod traceMethod = collectedMethodMap.get(methodName);
@@ -341,6 +353,7 @@ public class MethodTracer {
             }
         }*/
 
+        //函数出口处添加 AppMethodBeat.O（）方法
         @Override
         protected void onMethodExit(int opcode) {
             TraceMethod traceMethod = collectedMethodMap.get(methodName);

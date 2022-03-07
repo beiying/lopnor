@@ -15,6 +15,7 @@
  */
 package com.beiying.matrix.plugin.compat
 
+//Android Gradle Plugin适配
 enum class AGPVersion(
         val value: String
 ) {

@@ -42,10 +42,11 @@ public class MethodCollector {
     private final ExecutorService executor;
     private final MappingCollector mappingCollector;
 
-
+    //存储 类->父类 的map（用于查找Activity的子类）
     private final ConcurrentHashMap<String, String> collectedClassExtendMap = new ConcurrentHashMap<>();
-
+    //存储 被忽略方法名 -> 该方法TraceMethod 的映射关系
     private final ConcurrentHashMap<String, TraceMethod> collectedIgnoreMethodMap = new ConcurrentHashMap<>();
+    //存储 需要插桩方法名 -> 该方法TraceMethod 的映射关系
     private final ConcurrentHashMap<String, TraceMethod> collectedMethodMap;
     private final Configuration configuration;
     private final AtomicInteger methodId;
@@ -97,6 +98,7 @@ public class MethodCollector {
         futures.add(executor.submit(new Runnable() {
             @Override
             public void run() {
+                //存储不需要插桩的方法信息到文件（包括黑名单中的方法）
                 saveIgnoreCollectedMethod(mappingCollector);
             }
         }));
@@ -222,7 +224,7 @@ public class MethodCollector {
         }
     }
 
-
+    //将需要插桩的方法写入 methodMapping.txt
     private void saveCollectedMethod(MappingCollector mappingCollector) {
         File methodMapFile = new File(configuration.getMethodMapFilePath());
         if (!methodMapFile.getParentFile().exists()) {
@@ -230,6 +232,8 @@ public class MethodCollector {
         }
         List<TraceMethod> methodList = new ArrayList<>();
 
+        //因为Android包下的 都不会被插装，但是我们需要 dispatchMessage 方法的执行时间
+        //所以将这个例外 加进去
         TraceMethod extra = TraceMethod.create(TraceBuildConstants.METHOD_ID_DISPATCH, Opcodes.ACC_PUBLIC, "android.os.Handler",
                 "dispatchMessage", "(Landroid.os.Message;)V");
         collectedMethodMap.put(extra.getMethodName(), extra);
@@ -251,6 +255,7 @@ public class MethodCollector {
             Writer w = new OutputStreamWriter(fileOutputStream, "UTF-8");
             pw = new PrintWriter(w);
             for (TraceMethod traceMethod : methodList) {
+                //将 混淆过的数据 转换为 原始数据
                 traceMethod.revert(mappingCollector);
                 pw.println(traceMethod.toString());
             }
@@ -278,6 +283,7 @@ public class MethodCollector {
         public void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
             this.className = name;
+            //如果是虚拟类或者接口 isABSClass =true
             if ((access & Opcodes.ACC_ABSTRACT) > 0 || (access & Opcodes.ACC_INTERFACE) > 0) {
                 this.isABSClass = true;
             }
@@ -287,12 +293,15 @@ public class MethodCollector {
         @Override
         public MethodVisitor visitMethod(int access, String name, String desc,
                                          String signature, String[] exceptions) {
-            if (isABSClass) {
+            if (isABSClass) {//如果是虚拟类或者接口 就不管
                 return super.visitMethod(access, name, desc, signature, exceptions);
             } else {
                 if (!hasWindowFocusMethod) {
+                    //该方法是否与onWindowFocusChange方法的签名一致
+                    // （该类中是否复写了onWindowFocusChange方法，Activity不用考虑Class混淆)
                     hasWindowFocusMethod = isWindowFocusChangeMethod(name, desc);
                 }
+                //CollectMethodNode中执行method收集操作
                 return new CollectMethodNode(className, access, name, desc, signature, exceptions);
             }
         }
@@ -326,7 +335,7 @@ public class MethodCollector {
                 collectedIgnoreMethodMap.put(traceMethod.getMethodName(), traceMethod);
                 return;
             }
-
+            //不在黑名单中而且没在在methodMapping中配置过的方法加入待插桩的集合；
             if (isNeedTrace && !collectedMethodMap.containsKey(traceMethod.getMethodName())) {
                 traceMethod.id = methodId.incrementAndGet();
                 collectedMethodMap.put(traceMethod.getMethodName(), traceMethod);
