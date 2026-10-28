@@ -33,7 +33,6 @@ class ByTabBottomLayout(context: Context): FrameLayout(context), IByTabLayout<By
 
     private val TAG_TAB_BOTTOM = "TAG_TAB_BOTTOM"
 
-    @ExperimentalStdlibApi
     override fun inflateInfo(infoList: List<ByTabBottomInfo>) {
         if (infoList.isEmpty()) {
             return
@@ -107,7 +106,6 @@ class ByTabBottomLayout(context: Context): FrameLayout(context), IByTabLayout<By
     /**
      * 修复内容区域的底部Padding
      */
-    @ExperimentalStdlibApi
     private fun fixContentView() {
         if (getChildAt(0) !is ViewGroup) {
             return

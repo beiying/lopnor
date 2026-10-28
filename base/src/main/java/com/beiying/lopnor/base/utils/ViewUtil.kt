@@ -225,6 +225,7 @@ object ViewUtil {
         }
         when (scaleType) {
             ImageView.ScaleType.MATRIX -> throw IllegalStateException("Matrix scale type is not supported")
+            else -> {}
         }
         return true
     }
@@ -241,7 +242,6 @@ object ViewUtil {
      * @param <T>
      * @return 指定类型的View
     </T> */
-    @ExperimentalStdlibApi
     fun <T> findTypeView(group: ViewGroup, cls: Class<T>): T? {
         if (group == null) {
             return null

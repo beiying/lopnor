@@ -17,6 +17,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
+/**
+ * 拦截应用启动过程中Application、Activity相关的重要启动时间点
+ * */
 public class ActivityThreadHacker {
     private static final String TAG = "Matrix.ActivityThreadHacker";
     //这个时间被认为是APP启动时间

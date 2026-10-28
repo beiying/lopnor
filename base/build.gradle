@@ -61,9 +61,12 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'com.google.android.material:material:1.2.0'
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    api 'androidx.test:rules:1.4.0'
+    api 'androidx.test:core:1.4.0'
+    testApi 'junit:junit:4.13.2'
+    testApi 'org.mockito:mockito-core:4.8.0'
+    androidTestApi 'androidx.test:runner:1.4.0'
+    androidTestApi 'androidx.test.espresso:espresso-core:3.4.0'
 
     api project(":ai")
     api androidDependencies.view_model
@@ -88,4 +91,9 @@ dependencies {
     api globalDependencies.retrofit
     api globalDependencies.gson
     api globalDependencies.tinker
+    api (globalDependencies.glide) {
+        exclude group: 'com.android.support'
+    }
+    api globalDependencies.glide_transform
+    api globalDependencies.gpuimage
 }

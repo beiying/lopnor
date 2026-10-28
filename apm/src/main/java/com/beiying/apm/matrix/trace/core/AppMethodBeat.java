@@ -434,6 +434,18 @@ public class AppMethodBeat implements BeatLifecycle{
         }
     }
 
+    public void addListener(IAppMethodBeatListener listener) {
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
+    }
+
+    public void removeListener(IAppMethodBeatListener listener) {
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
+    }
+
     private static IndexRecord sIndexRecordHead = null;
 
     public static final class IndexRecord {

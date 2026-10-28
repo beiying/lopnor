@@ -30,22 +30,22 @@ gradle.projectsEvaluated {
     println "所有项目的build.gradle解析配置完成"
 }
 
-gradle.getTaskGraph().addTaskExecutionListener(new TaskExecutionListener() {
-    @Override
-    void beforeExecute(Task task) {
-        println("任务执行：start" + task.name)
-    }
-
-    @Override
-    void afterExecute(Task task, TaskState state) {
-        println("任务执行：end" + task.name)
-    }
-})
-
-gradle.buildFinished {
-    println "项目构建结束..."
-}
-
+//gradle.getTaskGraph().addTaskExecutionListener(new TaskExecutionListener() {
+//    @Override
+//    void beforeExecute(Task task) {
+//        println("任务执行：start" + task.name)
+//    }
+//
+//    @Override
+//    void afterExecute(Task task, TaskState state) {
+//        println("任务执行：end" + task.name)
+//    }
+//})
+//
+//gradle.buildFinished {
+//    println "项目构建结束..."
+//}
+//
 //setBinding(new Binding([gradle:this]))
 //evaluate(new File(
 //        settingsDir.parentFile,
